@@ -102,20 +102,20 @@ export default function Models({ user }: ModelsProps) {
       fetchModels();
     } catch (err) {
       console.error('Error saving model:', err);
-      setError('Error al guardar el modelo');
+      setError('Error saving model');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (confirm(`¿Estás seguro de que quieres eliminar el modelo "${name}"?`)) {
+    if (confirm(`Are you sure you want to delete the model "${name}"?`)) {
       try {
         await modelService.delete(id);
         fetchModels();
       } catch (err) {
         console.error('Error deleting model:', err);
-        setError('Error al eliminar el modelo');
+        setError('Error deleting model');
       }
     }
   };
@@ -179,7 +179,7 @@ export default function Models({ user }: ModelsProps) {
   };
 
   const handleDeleteField = (fieldId: string) => {
-    if (confirm('¿Estás seguro de que quieres eliminar este campo?')) {
+    if (confirm('Are you sure you want to delete this field?')) {
       setFormData({
         ...formData,
         fields: formData.fields.filter((f) => f.id !== fieldId),
@@ -239,41 +239,41 @@ export default function Models({ user }: ModelsProps) {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Modelos</h1>
-            <p className="text-gray-600">Gestiona los modelos del sistema.</p>
+            <h1 className="text-3xl font-bold text-gray-900">Models</h1>
+            <p className="text-gray-600">Manage system models.</p>
           </div>
           <Button onClick={handleCreate}>
             <Plus className="w-4 h-4 mr-2" />
-            Nuevo Modelo
+            New Model
           </Button>
         </div>
 
         {showForm && (
           <div className="bg-white p-6 border rounded-lg shadow-sm">
             <h2 className="text-xl font-semibold mb-4">
-              {editingModel ? 'Editar Modelo' : 'Crear Nuevo Modelo'}
+              {editingModel ? 'Edit Model' : 'Create New Model'}
             </h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Nombre</label>
+                <label className="block text-sm font-medium mb-1">Name</label>
                 <Input
                   value={formData.name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  placeholder="Nombre del modelo"
+                  placeholder="Model name"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Descripción
+                  Description
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  placeholder="Descripción del modelo"
+                  placeholder="Model description"
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -282,18 +282,18 @@ export default function Models({ user }: ModelsProps) {
               {/* Fields Section */}
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">Campos</h3>
+                  <h3 className="text-lg font-semibold">Fields</h3>
                   <Button type="button" onClick={handleAddField} size="sm">
                     <Plus className="w-4 h-4 mr-2" />
-                    Agregar Campo
+                    Add Field
                   </Button>
                 </div>
 
                 {formData.fields.length === 0 ? (
                   <div className="text-center py-8 border border-dashed border-gray-300 rounded-lg">
-                    <p className="text-gray-500">No hay campos definidos</p>
+                    <p className="text-gray-500">No fields defined</p>
                     <p className="text-sm text-gray-400 mt-1">
-                      Agrega campos para definir la estructura del modelo
+                      Add fields to define the model structure
                     </p>
                   </div>
                 ) : (
@@ -357,12 +357,12 @@ export default function Models({ user }: ModelsProps) {
                 {showFieldForm && (
                   <div className="border rounded-lg p-4 bg-gray-50">
                     <h4 className="font-semibold mb-3">
-                      {editingField ? 'Editar Campo' : 'Nuevo Campo'}
+                      {editingField ? 'Edit Field' : 'New Field'}
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium mb-1">
-                          Nombre *
+                          Name *
                         </label>
                         <Input
                           value={fieldFormData.name}
@@ -372,12 +372,12 @@ export default function Models({ user }: ModelsProps) {
                               name: e.target.value,
                             })
                           }
-                          placeholder="Nombre del campo"
+                          placeholder="Field name"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium mb-1">
-                          Tipo *
+                          Type *
                         </label>
                         <select
                           value={fieldFormData.type}
@@ -389,15 +389,15 @@ export default function Models({ user }: ModelsProps) {
                           }
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                          <option value="text">Texto</option>
-                          <option value="boolean">Booleano</option>
+                          <option value="text">Text</option>
+                          <option value="boolean">Boolean</option>
                           <option value="markdown">Markdown</option>
                           <option value="media">Media</option>
                         </select>
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium mb-1">
-                          Descripción
+                          Description
                         </label>
                         <Input
                           value={fieldFormData.description}
@@ -407,7 +407,7 @@ export default function Models({ user }: ModelsProps) {
                               description: e.target.value,
                             })
                           }
-                          placeholder="Descripción opcional del campo"
+                          placeholder="Optional field description"
                         />
                       </div>
                       <div className="flex items-center space-x-2">
@@ -424,7 +424,7 @@ export default function Models({ user }: ModelsProps) {
                           className="rounded border-gray-300"
                         />
                         <label htmlFor="required" className="text-sm">
-                          Obligatorio
+                          Required
                         </label>
                       </div>
                     </div>
@@ -434,10 +434,10 @@ export default function Models({ user }: ModelsProps) {
                         variant="outline"
                         onClick={resetFieldForm}
                       >
-                        Cancelar
+                        Cancel
                       </Button>
                       <Button type="button" onClick={handleSaveField}>
-                        {editingField ? 'Actualizar' : 'Agregar'} Campo
+                        {editingField ? 'Update' : 'Add'} Field
                       </Button>
                     </div>
                   </div>
@@ -446,14 +446,10 @@ export default function Models({ user }: ModelsProps) {
 
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={resetForm} disabled={saving}>
-                  Cancelar
+                  Cancel
                 </Button>
                 <Button onClick={handleSave} disabled={saving}>
-                  {saving
-                    ? 'Guardando...'
-                    : editingModel
-                      ? 'Actualizar'
-                      : 'Crear'}
+                  {saving ? 'Saving...' : editingModel ? 'Update' : 'Create'}
                 </Button>
               </div>
             </div>
@@ -470,7 +466,7 @@ export default function Models({ user }: ModelsProps) {
           <div className="text-center py-12">
             <p className="text-red-600">{error}</p>
             <Button onClick={fetchModels} className="mt-4">
-              Reintentar
+              Retry
             </Button>
           </div>
         )}
@@ -479,9 +475,9 @@ export default function Models({ user }: ModelsProps) {
           <div className="space-y-4">
             {models.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-500">No hay modelos registrados.</p>
+                <p className="text-gray-500">No models registered.</p>
                 <p className="text-sm text-gray-400 mt-1">
-                  Crea tu primer modelo usando el botón "Nuevo Modelo".
+                  Create your first model using the "New Model" button.
                 </p>
               </div>
             ) : (
@@ -502,15 +498,14 @@ export default function Models({ user }: ModelsProps) {
                         <div className="text-xs text-gray-400 mt-2">
                           {model.createdAt && (
                             <span>
-                              Creado: {model.createdAt.toLocaleDateString()}
+                              Created: {model.createdAt.toLocaleDateString()}
                             </span>
                           )}
                           {model.updatedAt &&
                             model.updatedAt.getTime() !==
                               model.createdAt?.getTime() && (
                               <span className="ml-4">
-                                Actualizado:{' '}
-                                {model.updatedAt.toLocaleDateString()}
+                                Updated: {model.updatedAt.toLocaleDateString()}
                               </span>
                             )}
                         </div>

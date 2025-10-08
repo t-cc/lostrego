@@ -23,7 +23,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'models',
-    label: 'Modelos',
+    label: 'Models',
     icon: Box,
     href: '/models',
   },

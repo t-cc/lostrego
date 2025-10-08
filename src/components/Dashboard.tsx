@@ -13,13 +13,13 @@ export default function Dashboard({ user }: DashboardProps) {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600">
-            Bienvenido de vuelta, {user.displayName || 'Usuario'}
+            Welcome back, {user.displayName || 'User'}
           </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div className="rounded-lg border bg-white p-6 shadow">
-            <h3 className="text-lg font-semibold text-gray-900">Perfil</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Profile</h3>
             <div className="mt-4 space-y-2">
               {user.photoURL && (
                 <img

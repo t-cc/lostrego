@@ -148,7 +148,7 @@ export default function Media({ user }: MediaProps) {
       setPage(0); // Reset to first page
     } catch (err) {
       console.error('Upload error:', err);
-      setError('Error al subir archivos');
+      setError('Error uploading files');
     } finally {
       setUploading(false);
       setUploadProgress({});
@@ -160,7 +160,7 @@ export default function Media({ user }: MediaProps) {
   };
 
   const deleteFile = async (filePath: string, fileName: string) => {
-    if (confirm(`¿Estás seguro de que quieres eliminar "${fileName}"?`)) {
+    if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
       try {
         const fileRef = ref(storage, filePath);
         await deleteObject(fileRef);
@@ -168,7 +168,7 @@ export default function Media({ user }: MediaProps) {
         setFiles((prev) => prev.filter((f) => f.path !== filePath));
       } catch (err) {
         console.error('Delete error:', err);
-        alert('Error al eliminar el archivo');
+        alert('Error deleting file');
       }
     }
   };
@@ -178,9 +178,7 @@ export default function Media({ user }: MediaProps) {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Media</h1>
-          <p className="text-gray-600">
-            Contenido multimedia del bucket de Firebase.
-          </p>
+          <p className="text-gray-600">Firebase bucket multimedia content.</p>
         </div>
 
         {/* Upload Area */}
@@ -200,11 +198,11 @@ export default function Media({ user }: MediaProps) {
           <div className="mt-4">
             <p className="text-lg font-semibold text-gray-900">
               {dragActive
-                ? 'Suelta los archivos aquí'
-                : 'Arrastra y suelta archivos o haz clic para seleccionar'}
+                ? 'Drop files here'
+                : 'Drag and drop files or click to select'}
             </p>
             <p className="text-sm text-gray-600">
-              Sube imágenes, videos u otros archivos multimedia
+              Upload images, videos or other multimedia files
             </p>
           </div>
           <input
@@ -272,7 +270,7 @@ export default function Media({ user }: MediaProps) {
                       deleteFile(file.path, file.name);
                     }}
                     className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                    title={`Eliminar ${file.name}`}
+                    title={`Delete ${file.name}`}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -292,12 +290,12 @@ export default function Media({ user }: MediaProps) {
                     className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                   >
                     <ChevronLeft className="w-4 h-4 mr-1" />
-                    Anterior
+                    Previous
                   </button>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-700">
-                    Página {page + 1} de {totalPages}
+                    Page {page + 1} of {totalPages}
                   </span>
                 </div>
                 <div className="flex items-center">
@@ -306,7 +304,7 @@ export default function Media({ user }: MediaProps) {
                     disabled={page === totalPages - 1}
                     className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                   >
-                    Siguiente
+                    Next
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </button>
                 </div>

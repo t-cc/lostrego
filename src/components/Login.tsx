@@ -18,7 +18,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center">
       <Button onClick={signInWithGoogle} className="flex items-center gap-2">
         <GoogleIcon className="h-4 w-4" />
-        Continuar con Google
+        Continue with Google
       </Button>
     </div>
   );

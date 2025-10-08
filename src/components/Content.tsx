@@ -363,7 +363,7 @@ export default function Content({ user }: ContentProps) {
         <div className="flex h-full">
           {/* Models Sidebar */}
           <div className="w-64 bg-white border-r border-gray-200 p-4">
-            <h3 className="text-lg font-semibold mb-4">Modelos</h3>
+            <h3 className="text-lg font-semibold mb-4">Models</h3>
             <div className="space-y-2">
               {models.map((model) => (
                 <button
