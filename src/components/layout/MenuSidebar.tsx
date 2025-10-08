@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/sidebar';
 import type { User } from '@/types/auth';
 import type { MenuItem } from '@/types/layout';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { NavUser } from './NavUser';
 
@@ -22,6 +22,8 @@ interface MenuSidebarProps {
 }
 
 export default function MenuSidebar({ menuItems, user }: MenuSidebarProps) {
+  const location = useLocation();
+
   const handleMenuClick = (item: MenuItem) => {
     if (item.onClick) {
       item.onClick();
@@ -50,23 +52,31 @@ export default function MenuSidebar({ menuItems, user }: MenuSidebarProps) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {menuItems.map((item) => (
-              <SidebarMenuItem key={item.id}>
-                {item.href ? (
-                  <SidebarMenuButton asChild>
-                    <Link to={item.href}>
+            {menuItems.map((item) => {
+              const isActive = item.href
+                ? location.pathname.startsWith(item.href)
+                : false;
+              return (
+                <SidebarMenuItem key={item.id}>
+                  {item.href ? (
+                    <SidebarMenuButton asChild isActive={isActive}>
+                      <Link to={item.href}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  ) : (
+                    <SidebarMenuButton
+                      isActive={isActive}
+                      onClick={() => handleMenuClick(item)}
+                    >
                       <item.icon className="h-4 w-4" />
                       <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                ) : (
-                  <SidebarMenuButton onClick={() => handleMenuClick(item)}>
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                )}
-              </SidebarMenuItem>
-            ))}
+                    </SidebarMenuButton>
+                  )}
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

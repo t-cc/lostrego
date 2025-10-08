@@ -17,13 +17,7 @@ import {
 import { auth } from '@/lib/firebase';
 import type { User } from '@/types/auth';
 import { signOut } from 'firebase/auth';
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-} from 'lucide-react';
+import { BadgeCheck, ChevronsUpDown, LogOut } from 'lucide-react';
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar();
@@ -94,17 +88,9 @@ export function NavUser({ user }: { user: User }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => alert('Coming soon')}>
                 <BadgeCheck />
                 Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
