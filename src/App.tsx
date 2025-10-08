@@ -1,5 +1,6 @@
 import Dashboard from '@/components/Dashboard';
 import Login from '@/components/Login';
+import Media from '@/components/Media';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
@@ -27,6 +28,12 @@ function AppContent() {
         path="/dashboard"
         element={
           user ? <Dashboard user={user} /> : <Navigate to="/login" replace />
+        }
+      />
+      <Route
+        path="/media"
+        element={
+          user ? <Media user={user} /> : <Navigate to="/login" replace />
         }
       />
       <Route

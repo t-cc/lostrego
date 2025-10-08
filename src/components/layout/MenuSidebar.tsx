@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/sidebar';
 import type { User } from '@/types/auth';
 import type { MenuItem } from '@/types/layout';
+import { Link } from 'react-router-dom';
 
 import { NavUser } from './NavUser';
 
@@ -51,10 +52,19 @@ export default function MenuSidebar({ menuItems, user }: MenuSidebarProps) {
           <SidebarMenu>
             {menuItems.map((item) => (
               <SidebarMenuItem key={item.id}>
-                <SidebarMenuButton onClick={() => handleMenuClick(item)}>
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.label}</span>
-                </SidebarMenuButton>
+                {item.href ? (
+                  <SidebarMenuButton asChild>
+                    <Link to={item.href}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                ) : (
+                  <SidebarMenuButton onClick={() => handleMenuClick(item)}>
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                )}
               </SidebarMenuItem>
             ))}
           </SidebarMenu>

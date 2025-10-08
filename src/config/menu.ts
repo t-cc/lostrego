@@ -1,5 +1,12 @@
 import type { MenuItem } from '@/types/layout';
-import { BarChart3, FileText, Home, Settings, Users } from 'lucide-react';
+import {
+  BarChart3,
+  FileText,
+  Home,
+  Image,
+  Settings,
+  Users,
+} from 'lucide-react';
 
 // Menu configuration - easily modify this array to add/remove menu items
 export const menuItems: MenuItem[] = [
@@ -18,6 +25,12 @@ export const menuItems: MenuItem[] = [
     onClick: () => {
       console.log('Navigate to content management');
     },
+  },
+  {
+    id: 'media',
+    label: 'Media',
+    icon: Image,
+    href: '/media',
   },
   {
     id: 'users',
