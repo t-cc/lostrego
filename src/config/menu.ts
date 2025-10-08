@@ -16,16 +16,16 @@ export const menuItems: MenuItem[] = [
     href: '/content',
   },
   {
-    id: 'media',
-    label: 'Media',
-    icon: Image,
-    href: '/media',
-  },
-  {
     id: 'models',
     label: 'Models',
     icon: Box,
     href: '/models',
+  },
+  {
+    id: 'media',
+    label: 'Media',
+    icon: Image,
+    href: '/media',
   },
 ];
 

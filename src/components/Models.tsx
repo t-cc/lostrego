@@ -2,7 +2,17 @@ import { useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { menuItems } from '@/config/menu';
 import { modelService } from '@/lib/models';
 import type { User } from '@/types/auth';
@@ -255,8 +265,9 @@ export default function Models({ user }: ModelsProps) {
             </h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
+                <Label htmlFor="model-name">Name</Label>
                 <Input
+                  id="model-name"
                   value={formData.name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setFormData({ ...formData, name: e.target.value })
@@ -265,17 +276,15 @@ export default function Models({ user }: ModelsProps) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Description
-                </label>
-                <textarea
+                <Label htmlFor="model-description">Description</Label>
+                <Textarea
+                  id="model-description"
                   value={formData.description}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
                   placeholder="Model description"
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -316,22 +325,24 @@ export default function Models({ user }: ModelsProps) {
                             {field.description}
                           </div>
                           <div className="flex items-center space-x-2">
-                            <button
+                            <Button
                               type="button"
+                              variant="ghost"
+                              size="sm"
                               onClick={() => moveField(field.id!, 'up')}
                               disabled={field.order === 1}
-                              className="text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               ↑
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               type="button"
+                              variant="ghost"
+                              size="sm"
                               onClick={() => moveField(field.id!, 'down')}
                               disabled={field.order === formData.fields.length}
-                              className="text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               ↓
-                            </button>
+                            </Button>
                             <Button
                               type="button"
                               onClick={() => handleEditField(field)}
@@ -361,10 +372,9 @@ export default function Models({ user }: ModelsProps) {
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Name *
-                        </label>
+                        <Label htmlFor="field-name">Name *</Label>
                         <Input
+                          id="field-name"
                           value={fieldFormData.name}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setFieldFormData({
@@ -376,30 +386,31 @@ export default function Models({ user }: ModelsProps) {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Type *
-                        </label>
-                        <select
+                        <Label htmlFor="field-type">Type *</Label>
+                        <Select
                           value={fieldFormData.type}
-                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                          onValueChange={(value) =>
                             setFieldFormData({
                               ...fieldFormData,
-                              type: e.target.value as Field['type'],
+                              type: value as Field['type'],
                             })
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                          <option value="text">Text</option>
-                          <option value="boolean">Boolean</option>
-                          <option value="markdown">Markdown</option>
-                          <option value="media">Media</option>
-                        </select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="text">Text</SelectItem>
+                            <SelectItem value="boolean">Boolean</SelectItem>
+                            <SelectItem value="markdown">Markdown</SelectItem>
+                            <SelectItem value="media">Media</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium mb-1">
-                          Description
-                        </label>
+                        <Label htmlFor="field-description">Description</Label>
                         <Input
+                          id="field-description"
                           value={fieldFormData.description}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setFieldFormData({
@@ -411,21 +422,17 @@ export default function Models({ user }: ModelsProps) {
                         />
                       </div>
                       <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           id="required"
                           checked={fieldFormData.required}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          onCheckedChange={(checked) =>
                             setFieldFormData({
                               ...fieldFormData,
-                              required: e.target.checked,
+                              required: !!checked,
                             })
                           }
-                          className="rounded border-gray-300"
                         />
-                        <label htmlFor="required" className="text-sm">
-                          Required
-                        </label>
+                        <Label htmlFor="required">Required</Label>
                       </div>
                     </div>
                     <div className="flex justify-end space-x-2 mt-4">

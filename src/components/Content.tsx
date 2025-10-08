@@ -1,6 +1,18 @@
 import { useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { menuItems } from '@/config/menu';
 import { contentService } from '@/lib/content';
 import { modelService } from '@/lib/models';
@@ -24,16 +36,18 @@ function TextField({
 }) {
   return (
     <div className="mb-4">
-      <label className="block text-sm font-medium mb-1">{field.name}</label>
+      <Label htmlFor={field.name}>{field.name}</Label>
       {field.description && (
-        <p className="text-xs text-gray-500 mb-1">{field.description}</p>
+        <p className="text-xs text-muted-foreground mb-1">
+          {field.description}
+        </p>
       )}
-      <input
+      <Input
+        id={field.name}
         type="text"
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         required={field.required}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
     </div>
   );
@@ -50,17 +64,18 @@ function BooleanField({
 }) {
   return (
     <div className="mb-4">
-      <label className="flex items-center">
-        <input
-          type="checkbox"
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id={field.name}
           checked={value || false}
-          onChange={(e) => onChange(e.target.checked)}
-          className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          onCheckedChange={(checked) => onChange(!!checked)}
         />
-        <span className="text-sm font-medium">{field.name}</span>
-      </label>
+        <Label htmlFor={field.name}>{field.name}</Label>
+      </div>
       {field.description && (
-        <p className="text-xs text-gray-500 mt-1">{field.description}</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {field.description}
+        </p>
       )}
     </div>
   );
@@ -77,16 +92,18 @@ function MarkdownField({
 }) {
   return (
     <div className="mb-4">
-      <label className="block text-sm font-medium mb-1">{field.name}</label>
+      <Label htmlFor={field.name}>{field.name}</Label>
       {field.description && (
-        <p className="text-xs text-gray-500 mb-1">{field.description}</p>
+        <p className="text-xs text-muted-foreground mb-1">
+          {field.description}
+        </p>
       )}
-      <textarea
+      <Textarea
+        id={field.name}
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         required={field.required}
         rows={4}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         placeholder="Enter markdown content..."
       />
     </div>
@@ -105,17 +122,19 @@ function MediaField({
   // TODO: Implement media picker - for now just a simple text input for URLs
   return (
     <div className="mb-4">
-      <label className="block text-sm font-medium mb-1">{field.name}</label>
+      <Label htmlFor={field.name}>{field.name}</Label>
       {field.description && (
-        <p className="text-xs text-gray-500 mb-1">{field.description}</p>
+        <p className="text-xs text-muted-foreground mb-1">
+          {field.description}
+        </p>
       )}
-      <input
+      <Input
+        id={field.name}
         type="url"
         placeholder="Media URL"
         value={(value && value[0]) || ''}
         onChange={(e) => onChange(e.target.value ? [e.target.value] : [])}
         required={field.required}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
     </div>
   );
@@ -126,6 +145,8 @@ function ContentForm({
   onSubmit,
   onCancel,
   initialData,
+  open,
+  onOpenChange,
 }: {
   model: Model;
   onSubmit: (
@@ -133,10 +154,18 @@ function ContentForm({
   ) => void;
   onCancel: () => void;
   initialData?: ContentItem;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
   const [formData, setFormData] = useState<
     Record<string, string | boolean | string[] | undefined>
   >(initialData?.data || {});
+
+  useEffect(() => {
+    if (open) {
+      setFormData(initialData?.data || {});
+    }
+  }, [open, initialData]);
 
   const handleFieldChange = (
     fieldName: string,
@@ -153,11 +182,16 @@ function ContentForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
-        <h3 className="text-lg font-semibold mb-4">
-          {initialData ? 'Edit Content' : 'Create New Content'}
-        </h3>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>
+            {initialData ? 'Edit Content' : 'Create New Content'}
+          </DialogTitle>
+          <DialogDescription>
+            Fill out the form to {initialData ? 'update' : 'create'} content.
+          </DialogDescription>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit}>
           {sortedFields.map((field) => {
@@ -204,23 +238,14 @@ function ContentForm({
           })}
 
           <div className="flex justify-end space-x-3 mt-6">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
-            >
+            <Button type="button" onClick={onCancel} variant="outline">
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              {initialData ? 'Update' : 'Create'}
-            </button>
+            </Button>
+            <Button type="submit">{initialData ? 'Update' : 'Create'}</Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -351,12 +376,17 @@ export default function Content({ user }: ContentProps) {
 
   return (
     <>
-      {showForm && selectedModel && (
+      {selectedModel && (
         <ContentForm
           model={selectedModel}
           onSubmit={handleFormSubmit}
           onCancel={handleFormCancel}
           initialData={editingItem || undefined}
+          open={showForm}
+          onOpenChange={(open) => {
+            setShowForm(open);
+            if (!open) setEditingItem(null);
+          }}
         />
       )}
       <Layout menuItems={menuItems} user={user}>
@@ -366,17 +396,18 @@ export default function Content({ user }: ContentProps) {
             <h3 className="text-lg font-semibold mb-4">Models</h3>
             <div className="space-y-2">
               {models.map((model) => (
-                <button
+                <Button
                   key={model.id}
+                  variant="ghost"
                   onClick={() => setSelectedModel(model)}
-                  className={`w-full text-left px-3 py-2 rounded-md hover:bg-gray-50 ${
+                  className={`w-full justify-start px-3 py-2 hover:bg-gray-50 ${
                     selectedModel?.id === model.id
-                      ? 'bg-blue-50 text-blue-700 border-blue-200'
+                      ? 'bg-blue-50 text-blue-700'
                       : 'text-gray-700'
                   }`}
                 >
                   {model.name}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -397,12 +428,7 @@ export default function Content({ user }: ContentProps) {
                   <div className="px-4 py-3 border-b border-gray-200">
                     <div className="flex justify-between items-center">
                       <h3 className="text-lg font-medium">Content Items</h3>
-                      <button
-                        onClick={handleAddNew}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                      >
-                        Add New
-                      </button>
+                      <Button onClick={handleAddNew}>Add New</Button>
                     </div>
                   </div>
                   <div className="p-4">
@@ -427,18 +453,20 @@ export default function Content({ user }: ContentProps) {
                                 </p>
                               </div>
                               <div className="flex space-x-2">
-                                <button
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
                                   onClick={() => handleEdit(item)}
-                                  className="text-blue-600 hover:text-blue-800"
                                 >
                                   Edit
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
                                   onClick={() => handleDelete(item.id!)}
-                                  className="text-red-600 hover:text-red-800"
                                 >
                                   Delete
-                                </button>
+                                </Button>
                               </div>
                             </div>
                           </div>
