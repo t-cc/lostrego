@@ -1,6 +1,7 @@
 import type { MenuItem } from '@/types/layout';
 import {
   BarChart3,
+  Box,
   FileText,
   Home,
   Image,
@@ -31,6 +32,12 @@ export const menuItems: MenuItem[] = [
     label: 'Media',
     icon: Image,
     href: '/media',
+  },
+  {
+    id: 'models',
+    label: 'Modelos',
+    icon: Box,
+    href: '/models',
   },
   {
     id: 'users',

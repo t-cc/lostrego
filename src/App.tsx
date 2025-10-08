@@ -1,6 +1,7 @@
 import Dashboard from '@/components/Dashboard';
 import Login from '@/components/Login';
 import Media from '@/components/Media';
+import Models from '@/components/Models';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
@@ -34,6 +35,12 @@ function AppContent() {
         path="/media"
         element={
           user ? <Media user={user} /> : <Navigate to="/login" replace />
+        }
+      />
+      <Route
+        path="/models"
+        element={
+          user ? <Models user={user} /> : <Navigate to="/login" replace />
         }
       />
       <Route
