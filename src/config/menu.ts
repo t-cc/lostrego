@@ -1,13 +1,5 @@
 import type { MenuItem } from '@/types/layout';
-import {
-  BarChart3,
-  Box,
-  FileText,
-  Home,
-  Image,
-  Settings,
-  Users,
-} from 'lucide-react';
+import { Box, FileText, Home, Image } from 'lucide-react';
 
 // Menu configuration - easily modify this array to add/remove menu items
 export const menuItems: MenuItem[] = [
@@ -15,17 +7,13 @@ export const menuItems: MenuItem[] = [
     id: 'dashboard',
     label: 'Dashboard',
     icon: Home,
-    onClick: () => {
-      console.log('Navigate to dashboard');
-    },
+    href: '/dashboard',
   },
   {
     id: 'content',
     label: 'Content',
     icon: FileText,
-    onClick: () => {
-      console.log('Navigate to content management');
-    },
+    href: '/content',
   },
   {
     id: 'media',
@@ -38,30 +26,6 @@ export const menuItems: MenuItem[] = [
     label: 'Modelos',
     icon: Box,
     href: '/models',
-  },
-  {
-    id: 'users',
-    label: 'Users',
-    icon: Users,
-    onClick: () => {
-      console.log('Navigate to user management');
-    },
-  },
-  {
-    id: 'analytics',
-    label: 'Analytics',
-    icon: BarChart3,
-    onClick: () => {
-      console.log('Navigate to analytics');
-    },
-  },
-  {
-    id: 'settings',
-    label: 'Settings',
-    icon: Settings,
-    onClick: () => {
-      console.log('Navigate to settings');
-    },
   },
 ];
 

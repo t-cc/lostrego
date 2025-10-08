@@ -1,3 +1,4 @@
+import Content from '@/components/Content';
 import Dashboard from '@/components/Dashboard';
 import Login from '@/components/Login';
 import Media from '@/components/Media';
@@ -41,6 +42,12 @@ function AppContent() {
         path="/models"
         element={
           user ? <Models user={user} /> : <Navigate to="/login" replace />
+        }
+      />
+      <Route
+        path="/content"
+        element={
+          user ? <Content user={user} /> : <Navigate to="/login" replace />
         }
       />
       <Route

@@ -8,6 +8,7 @@ Commands and Tools
 
 Response Constraints
 
+- Use English for labels, messages, variables, files, code, etc.Even if the user is a non-native English speaker.
 - Do not remove any existing code unless necessary.
 - Do not remove my comments or commented-out code unless necessary.
 - Do not change the formatting of my imports.
@@ -34,6 +35,8 @@ Naming and Conventions
 - Use CSS modules for component-specific styling.
 - Use shadcn for creating base ui components.
 - Use external svg files for icons under src/assets/icons , instead of inline svg.
+- Use shadcn components insted of custom or native like button, input, etc.
+- Use react-hook-form and zod for form validation.
 
 Performance Optimization
 
