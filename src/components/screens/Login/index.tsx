@@ -5,15 +5,15 @@ import { signInWithPopup } from 'firebase/auth';
 
 function signInWithGoogle() {
   signInWithPopup(auth, googleProvider)
-    .then((result) => {
-      console.log('User signed in:', result.user);
-    })
+    // .then((result) => {
+    //   console.log('User signed in:', result.user);
+    // })
     .catch((error) => {
       console.error('Error signing in:', error);
     });
 }
 
-export default function Login() {
+export function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <Button onClick={signInWithGoogle} className="flex items-center gap-2">

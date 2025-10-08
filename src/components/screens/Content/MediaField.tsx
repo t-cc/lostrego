@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
+import Media from '@/components/screens/Media';
+import type { MediaFile } from '@/components/screens/Media/types';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import Media from '@/screens/Media';
-import type { MediaFile } from '@/screens/Media/types';
 import type { User } from '@/types/auth';
 import type { Field } from '@/types/model';
 

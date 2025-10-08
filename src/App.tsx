@@ -1,9 +1,9 @@
-import Dashboard from '@/components/Dashboard';
-import Login from '@/components/Login';
+import Content from '@/components/screens/Content';
+import { Dashboard } from '@/components/screens/Dashboard';
+import { Login } from '@/components/screens/Login';
+import Media from '@/components/screens/Media';
+import Models from '@/components/screens/Models';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
-import Content from '@/screens/Content';
-import Media from '@/screens/Media';
-import Models from '@/screens/Models';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 function AppContent() {

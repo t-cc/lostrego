@@ -6,7 +6,7 @@ interface DashboardProps {
   user: User;
 }
 
-export default function Dashboard({ user }: DashboardProps) {
+export function Dashboard({ user }: DashboardProps) {
   return (
     <Layout menuItems={menuItems} user={user}>
       <div className="space-y-6">
