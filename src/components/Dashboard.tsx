@@ -1,29 +1,21 @@
-import { Button } from '@/components/ui/button';
-import { auth } from '@/lib/firebase';
+import Layout from '@/components/layout/Layout';
+import { menuItems } from '@/config/menu';
 import type { User } from '@/types/auth';
-import { signOut } from 'firebase/auth';
 
 interface DashboardProps {
   user: User;
 }
 
-function handleLogout() {
-  signOut(auth);
-}
-
 export default function Dashboard({ user }: DashboardProps) {
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="mx-auto max-w-4xl">
-        <header className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600">Bienvenido de vuelta</p>
-          </div>
-          <Button onClick={handleLogout} variant="outline">
-            Cerrar sesión
-          </Button>
-        </header>
+    <Layout menuItems={menuItems} user={user}>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600">
+            Bienvenido de vuelta, {user.displayName || 'Usuario'}
+          </p>
+        </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div className="rounded-lg border bg-white p-6 shadow">
@@ -72,13 +64,13 @@ export default function Dashboard({ user }: DashboardProps) {
                 Este es el contenido protegido que solo pueden ver los usuarios
                 autenticados.
               </p>
-              <Button variant="secondary" className="w-full">
-                Ver contenido
-              </Button>
+              <p className="text-sm text-gray-500 mt-2">
+                Usa el menú lateral para navegar por las diferentes secciones.
+              </p>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }
