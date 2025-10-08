@@ -16,6 +16,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { menuItems } from '@/config/menu';
 import { contentService } from '@/lib/content';
 import { modelService } from '@/lib/models';
+import Media from '@/screens/Media';
+import type { MediaFile } from '@/screens/Media/types';
 import type { User } from '@/types/auth';
 import type { ContentItem } from '@/types/content';
 import type { Field, Model } from '@/types/model';
@@ -114,34 +116,86 @@ function MediaField({
   field,
   value,
   onChange,
+  user,
 }: {
   field: Field;
   value?: string[];
   onChange: (value: string[]) => void;
+  user: User;
 }) {
-  // TODO: Implement media picker - for now just a simple text input for URLs
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
+
+  const handleSelectMedia = (mediaFile: MediaFile) => {
+    if (mediaFile.url) {
+      // Add the selected media to the array
+      const currentValue = value || [];
+      onChange([...currentValue, mediaFile.url]);
+      setShowMediaPicker(false);
+    }
+  };
+
+  const removeMedia = (urlToRemove: string) => {
+    const currentValue = value || [];
+    onChange(currentValue.filter((url) => url !== urlToRemove));
+  };
+
   return (
-    <div className="mb-4">
-      <Label htmlFor={field.name}>{field.name}</Label>
-      {field.description && (
-        <p className="text-xs text-muted-foreground mb-1">
-          {field.description}
-        </p>
-      )}
-      <Input
-        id={field.name}
-        type="url"
-        placeholder="Media URL"
-        value={(value && value[0]) || ''}
-        onChange={(e) => onChange(e.target.value ? [e.target.value] : [])}
-        required={field.required}
+    <>
+      <div className="mb-4">
+        <Label htmlFor={field.name}>{field.name}</Label>
+        {field.description && (
+          <p className="text-xs text-muted-foreground mb-1">
+            {field.description}
+          </p>
+        )}
+
+        {/* Display selected media */}
+        {value && value.length > 0 && (
+          <div className="mb-2 grid grid-cols-2 gap-2">
+            {value.map((url, index) => (
+              <div key={`${url}-${index}`} className="relative">
+                <img
+                  src={url}
+                  alt={`Selected media ${index + 1}`}
+                  className="w-full h-20 object-cover rounded border"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeMedia(url)}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                  title="Remove media"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setShowMediaPicker(true)}
+          className="w-full"
+        >
+          Select Media
+        </Button>
+      </div>
+
+      <Media
+        user={user}
+        isPopup={true}
+        onSelect={handleSelectMedia}
+        open={showMediaPicker}
+        onOpenChange={setShowMediaPicker}
       />
-    </div>
+    </>
   );
 }
 
 function ContentForm({
   model,
+  user,
   onSubmit,
   onCancel,
   initialData,
@@ -149,6 +203,7 @@ function ContentForm({
   onOpenChange,
 }: {
   model: Model;
+  user: User;
   onSubmit: (
     data: Record<string, string | boolean | string[] | undefined>
   ) => void;
@@ -230,6 +285,7 @@ function ContentForm({
                     field={field}
                     value={formData[field.name] as string[]}
                     onChange={(value) => handleFieldChange(field.name, value)}
+                    user={user}
                   />
                 );
               default:
@@ -379,6 +435,7 @@ export default function Content({ user }: ContentProps) {
       {selectedModel && (
         <ContentForm
           model={selectedModel}
+          user={user}
           onSubmit={handleFormSubmit}
           onCancel={handleFormCancel}
           initialData={editingItem || undefined}

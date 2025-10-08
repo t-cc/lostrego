@@ -37,6 +37,7 @@ Naming and Conventions
 - Use external svg files for icons under src/assets/icons , instead of inline svg.
 - Use shadcn components insted of custom or native like button, input, etc.
 - Use react-hook-form and zod for form validation.
+- The components that represents a router entry must live in the folder src/screens.Each one have e independient folder and exists in the index.tsx file. Required components and logic should live in the same directory.
 
 Performance Optimization
 

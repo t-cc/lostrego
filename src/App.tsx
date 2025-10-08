@@ -1,9 +1,9 @@
 import Content from '@/components/Content';
 import Dashboard from '@/components/Dashboard';
 import Login from '@/components/Login';
-import Media from '@/components/Media';
 import Models from '@/components/Models';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
+import Media from '@/screens/Media';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 function AppContent() {
