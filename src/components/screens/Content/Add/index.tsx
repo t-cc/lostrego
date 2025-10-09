@@ -82,7 +82,6 @@ export function AddContent({ user }: AddContentProps) {
         user={user}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        noDialog={true}
       />
     </Layout>
   );

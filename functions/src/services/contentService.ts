@@ -7,6 +7,8 @@ interface Field {
   description: string;
   type: 'text' | 'boolean' | 'markdown' | 'media';
   required: boolean;
+  appId: string;
+  useAsTitle: boolean;
   order: number;
 }
 

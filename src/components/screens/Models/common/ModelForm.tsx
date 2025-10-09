@@ -1,6 +1,12 @@
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -48,6 +54,12 @@ export function ModelForm({
         ? prev.fields.map((f) => (f.id === editingField.id ? field : f))
         : [...prev.fields, field],
     }));
+    setShowFieldForm(false);
+    setEditingField(null);
+  };
+
+  const handleFieldDeleteWithClose = (fieldId: string) => {
+    handleFieldDelete(fieldId);
     setShowFieldForm(false);
     setEditingField(null);
   };
@@ -117,7 +129,6 @@ export function ModelForm({
         <FieldList
           fields={formData.fields}
           onEditField={handleFieldEdit}
-          onDeleteField={handleFieldDelete}
           onMoveField={handleFieldMove}
           onAddField={() => {
             setEditingField(null);
@@ -125,8 +136,13 @@ export function ModelForm({
           }}
         />
 
-        {showFieldForm && (
-          <div className="mt-4">
+        <Dialog open={showFieldForm} onOpenChange={setShowFieldForm}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                {editingField ? 'Edit Field' : 'Add New Field'}
+              </DialogTitle>
+            </DialogHeader>
             <FieldForm
               field={editingField}
               onSave={handleFieldSave}
@@ -134,9 +150,14 @@ export function ModelForm({
                 setShowFieldForm(false);
                 setEditingField(null);
               }}
+              onDelete={
+                editingField
+                  ? (field) => handleFieldDeleteWithClose(field.id!)
+                  : undefined
+              }
             />
-          </div>
-        )}
+          </DialogContent>
+        </Dialog>
 
         <div className="flex justify-end space-x-2">
           <Button variant="outline" onClick={onCancel} disabled={isSaving}>

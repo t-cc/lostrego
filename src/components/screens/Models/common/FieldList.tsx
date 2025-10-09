@@ -1,13 +1,11 @@
 import { Button } from '@/components/ui/button';
 import type { Field } from '@/types/model';
-import { Edit, Trash2 } from 'lucide-react';
 
 import { getFieldTypeIcon } from './utils';
 
 interface FieldListProps {
   fields: Field[];
   onEditField: (field: Field) => void;
-  onDeleteField: (fieldId: string) => void;
   onMoveField: (fieldId: string, direction: 'up' | 'down') => void;
   onAddField: () => void;
 }
@@ -15,7 +13,6 @@ interface FieldListProps {
 export function FieldList({
   fields,
   onEditField,
-  onDeleteField,
   onMoveField,
   onAddField,
 }: FieldListProps) {
@@ -49,7 +46,13 @@ export function FieldList({
                     const Icon = getFieldTypeIcon(field.type);
                     return <Icon className="w-4 h-4" />;
                   })()}
-                  <span className="font-medium">{field.name}</span>
+                  <button
+                    type="button"
+                    className="font-medium hover:underline text-left"
+                    onClick={() => onEditField(field)}
+                  >
+                    {field.name}
+                  </button>
                   {field.required && <span className="text-red-500">*</span>}
                 </div>
                 <div className="flex-1 text-sm text-gray-600">
@@ -73,22 +76,6 @@ export function FieldList({
                     disabled={field.order === fields.length}
                   >
                     ↓
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => onEditField(field)}
-                    size="sm"
-                    variant="outline"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => onDeleteField(field.id!)}
-                    size="sm"
-                    variant="outline"
-                  >
-                    <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
               </div>

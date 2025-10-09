@@ -106,7 +106,6 @@ export function EditContent({ user }: EditContentProps) {
         onCancel={handleCancel}
         onDelete={handleDelete}
         initialData={contentItem}
-        noDialog={true}
       />
     </Layout>
   );
