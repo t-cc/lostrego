@@ -55,15 +55,12 @@ export function ContentTable({
         <TableBody>
           {contentItems.length > 0 ? (
             contentItems.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>
-                  <button
-                    className="text-blue-600 hover:text-blue-800 hover:underline"
-                    onClick={() => onEdit(item)}
-                  >
-                    {item.id}
-                  </button>
-                </TableCell>
+              <TableRow
+                key={item.id}
+                onClick={() => onEdit(item)}
+                className="cursor-pointer"
+              >
+                <TableCell>{item.id}</TableCell>
                 <TableCell>{item.createdAt?.toLocaleDateString()}</TableCell>
                 <TableCell>{Object.keys(item.data).length}</TableCell>
               </TableRow>

@@ -13,6 +13,7 @@ export interface Model {
   id?: string;
   name: string;
   description: string;
+  appId?: string;
   fields?: Field[];
   createdAt?: Date;
   updatedAt?: Date;

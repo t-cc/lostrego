@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -7,25 +7,40 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { Field, Model } from '@/types/model';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { RefreshCw } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { FieldForm } from './FieldForm';
 import { FieldList } from './FieldList';
+import { toCamelCase } from './utils';
 
-interface ModelFormData {
-  name: string;
-  description: string;
-  fields: Field[];
-}
+const modelFormSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  description: z.string().optional(),
+  appId: z.string().min(1, 'API Field Name is required'),
+});
+
+type ModelFormData = z.infer<typeof modelFormSchema>;
 
 interface ModelFormProps {
   model: Model | null;
   initialData?: ModelFormData;
-  onSave: (modelData: ModelFormData) => Promise<void>;
+  onSave: (modelData: ModelFormData & { fields: Field[] }) => Promise<void>;
   onCancel: () => void;
+  onDelete?: () => void;
   isSaving: boolean;
 }
 
@@ -34,34 +49,85 @@ export function ModelForm({
   initialData,
   onSave,
   onCancel,
+  onDelete,
   isSaving,
 }: ModelFormProps) {
-  const [formData, setFormData] = useState<ModelFormData>(
-    initialData || {
-      name: model?.name || '',
-      description: model?.description || '',
-      fields: model?.fields || [],
-    }
-  );
+  const [fields, setFields] = useState<Field[]>(model?.fields || []);
+
+  const isEditMode = !!model;
 
   const [showFieldForm, setShowFieldForm] = useState(false);
   const [editingField, setEditingField] = useState<Field | null>(null);
 
-  const handleFieldSave = (field: Field) => {
-    setFormData((prev) => ({
-      ...prev,
-      fields: editingField
-        ? prev.fields.map((f) => (f.id === editingField.id ? field : f))
-        : [...prev.fields, field],
-    }));
-    setShowFieldForm(false);
-    setEditingField(null);
+  const form = useForm<ModelFormData>({
+    resolver: zodResolver(modelFormSchema),
+    defaultValues: {
+      name: initialData?.name || model?.name || '',
+      description: initialData?.description || model?.description || '',
+      appId:
+        initialData?.appId || model?.appId || toCamelCase(model?.name || ''),
+    },
+  });
+
+  // Auto-generate appId from name for new models
+  useEffect(() => {
+    const name = form.watch('name');
+    if (name && !model && form.watch('appId') === '') {
+      form.setValue('appId', toCamelCase(name));
+    }
+  }, [form.watch('name'), form, model]);
+
+  const handleRegenerateAppId = () => {
+    const name = form.getValues('name');
+    form.setValue('appId', toCamelCase(name));
   };
 
-  const handleFieldDeleteWithClose = (fieldId: string) => {
-    handleFieldDelete(fieldId);
+  const onSubmit = async (data: ModelFormData) => {
+    await onSave({
+      ...data,
+      fields,
+    });
+  };
+
+  const handleFieldSave = async (field: Field) => {
+    // Update local fields
+    let updatedFields;
+    if (editingField) {
+      updatedFields = fields.map((f) => (f.id === editingField.id ? field : f));
+    } else {
+      updatedFields = [...fields, field];
+    }
+
+    // If useAsTitle is true for this field, disable it for all other fields
+    if (field.useAsTitle) {
+      updatedFields = updatedFields.map((f) =>
+        f.id === field.id ? f : { ...f, useAsTitle: false }
+      );
+    }
+
+    setFields(updatedFields);
     setShowFieldForm(false);
     setEditingField(null);
+
+    // Auto-save the entire model when a field is added/edited
+    await onSave({
+      ...form.getValues(),
+      fields: updatedFields,
+    });
+  };
+
+  const handleFieldDeleteWithClose = async (fieldId: string) => {
+    // Update local fields first
+    const updatedFields = fields.filter((f) => f.id !== fieldId);
+    setFields(updatedFields);
+    setShowFieldForm(false);
+    setEditingField(null);
+
+    // Auto-save the entire model when a field is deleted
+    await onSave({
+      ...form.getValues(),
+      fields: updatedFields,
+    });
   };
 
   const handleFieldEdit = (field: Field) => {
@@ -69,21 +135,14 @@ export function ModelForm({
     setShowFieldForm(true);
   };
 
-  const handleFieldDelete = (fieldId: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      fields: prev.fields.filter((f) => f.id !== fieldId),
-    }));
-  };
-
-  const handleFieldMove = (fieldId: string, direction: 'up' | 'down') => {
-    const fieldIndex = formData.fields.findIndex((f) => f.id === fieldId);
+  const handleFieldMove = async (fieldId: string, direction: 'up' | 'down') => {
+    const fieldIndex = fields.findIndex((f) => f.id === fieldId);
     if (fieldIndex === -1) return;
 
     const newIndex = direction === 'up' ? fieldIndex - 1 : fieldIndex + 1;
-    if (newIndex < 0 || newIndex >= formData.fields.length) return;
+    if (newIndex < 0 || newIndex >= fields.length) return;
 
-    const newFields = [...formData.fields];
+    const newFields = [...fields];
     [newFields[fieldIndex], newFields[newIndex]] = [
       newFields[newIndex],
       newFields[fieldIndex],
@@ -93,41 +152,75 @@ export function ModelForm({
       field.order = index + 1;
     });
 
-    setFormData((prev) => ({ ...prev, fields: newFields }));
+    // Update local fields first
+    setFields(newFields);
+
+    // Auto-save after reordering
+    await onSave({
+      ...form.getValues(),
+      fields: newFields,
+    });
   };
 
   return (
-    <div className="bg-white p-6 border rounded-lg shadow-sm">
-      <h2 className="text-xl font-semibold mb-4">
-        {model ? 'Edit Model' : 'Create New Model'}
-      </h2>
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="model-name">Name</Label>
-          <Input
-            id="model-name"
-            value={formData.name}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, name: e.target.value }))
-            }
-            placeholder="Model name"
-          />
-        </div>
-        <div>
-          <Label htmlFor="model-description">Description</Label>
-          <Textarea
-            id="model-description"
-            value={formData.description}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, description: e.target.value }))
-            }
-            placeholder="Model description"
-            rows={3}
-          />
-        </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name *</FormLabel>
+              <FormControl>
+                <Input placeholder="Model name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="appId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>API Field Name *</FormLabel>
+              <FormControl>
+                <div className="flex space-x-2">
+                  <Input placeholder="camelCase field name" {...field} />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={handleRegenerateAppId}
+                    title="Regenerate from name"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Model description" rows={3} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="h-4" />
 
         <FieldList
-          fields={formData.fields}
+          fields={fields}
           onEditField={handleFieldEdit}
           onMoveField={handleFieldMove}
           onAddField={() => {
@@ -159,15 +252,31 @@ export function ModelForm({
           </DialogContent>
         </Dialog>
 
-        <div className="flex justify-end space-x-2">
-          <Button variant="outline" onClick={onCancel} disabled={isSaving}>
-            Cancel
-          </Button>
-          <Button onClick={() => onSave(formData)} disabled={isSaving}>
-            {isSaving ? 'Saving...' : model ? 'Update' : 'Create'}
-          </Button>
+        <div className="flex justify-between items-center  mt-16">
+          <div>
+            {isEditMode && onDelete && (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={onDelete}
+                disabled={isSaving}
+              >
+                Delete Model
+              </Button>
+            )}
+          </div>
+          <div className="flex space-x-2">
+            {!isEditMode && (
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+            )}
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? 'Saving...' : 'Save'}
+            </Button>
+          </div>
         </div>
-      </div>
-    </div>
+      </form>
+    </Form>
   );
 }

@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -18,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import type { Field } from '@/types/model';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RefreshCw, Trash2 } from 'lucide-react';
@@ -45,16 +45,10 @@ type FieldFormData = z.infer<typeof fieldFormSchema>;
 interface FieldFormProps {
   field: Field | null;
   onSave: (field: Field) => void;
-  onCancel: () => void;
   onDelete?: (field: Field) => void;
 }
 
-export function FieldForm({
-  field,
-  onSave,
-  onCancel,
-  onDelete,
-}: FieldFormProps) {
+export function FieldForm({ field, onSave, onDelete }: FieldFormProps) {
   const form = useForm<FieldFormData>({
     resolver: zodResolver(fieldFormSchema),
     defaultValues: {
@@ -99,10 +93,7 @@ export function FieldForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <h4 className="font-semibold mb-3">
-          {field ? 'Edit Field' : 'New Field'}
-        </h4>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -196,7 +187,7 @@ export function FieldForm({
             render={({ field: fieldProps }) => (
               <FormItem className="flex items-center space-x-2 space-y-0">
                 <FormControl>
-                  <Checkbox
+                  <Switch
                     checked={fieldProps.value}
                     onCheckedChange={fieldProps.onChange}
                   />
@@ -211,7 +202,7 @@ export function FieldForm({
             render={({ field: fieldProps }) => (
               <FormItem className="flex items-center space-x-2 space-y-0">
                 <FormControl>
-                  <Checkbox
+                  <Switch
                     checked={fieldProps.value}
                     onCheckedChange={fieldProps.onChange}
                   />
@@ -221,7 +212,7 @@ export function FieldForm({
             )}
           />
         </div>
-        <div className="flex justify-between items-center mt-4">
+        <div className="flex justify-between items-center mt-16">
           {field && onDelete && (
             <Button
               type="button"
@@ -234,9 +225,6 @@ export function FieldForm({
             </Button>
           )}
           <div className="flex space-x-2 ml-auto">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
             <Button type="submit">{field ? 'Update' : 'Add'} Field</Button>
           </div>
         </div>

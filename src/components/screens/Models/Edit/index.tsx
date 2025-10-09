@@ -9,6 +9,7 @@ import type { Field, Model } from '@/types/model';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ModelForm } from '../common/ModelForm';
+import { ModelsLayout } from '../common/ModelsLayout';
 
 interface EditModelProps {
   user: User;
@@ -17,6 +18,7 @@ interface EditModelProps {
 export function EditModel({ user }: EditModelProps) {
   const { id } = useParams<{ id: string }>();
   const [model, setModel] = useState<Model | null>(null);
+  const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -24,17 +26,19 @@ export function EditModel({ user }: EditModelProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (id) {
-      fetchModel(id);
-    }
+    fetchData();
   }, [id]);
 
-  const fetchModel = async (modelId: string) => {
+  const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await modelService.getById(modelId);
-      setModel(data);
+      const [modelsData, modelData] = await Promise.all([
+        modelService.getAll(),
+        id ? modelService.getById(id) : Promise.resolve(null),
+      ]);
+      setModels(modelsData);
+      setModel(modelData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load model');
     } finally {
@@ -45,6 +49,7 @@ export function EditModel({ user }: EditModelProps) {
   const handleSave = async (modelData: {
     name: string;
     description: string;
+    appId: string;
     fields: Field[];
   }) => {
     if (!model) return;
@@ -52,7 +57,7 @@ export function EditModel({ user }: EditModelProps) {
     try {
       setSaving(true);
       await modelService.update(model.id!, modelData);
-      navigate('/models');
+      // Stay on the same page instead of navigating away
     } catch (err) {
       console.error('Error updating model:', err);
       alert('Error updating model');
@@ -117,29 +122,24 @@ export function EditModel({ user }: EditModelProps) {
 
   return (
     <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <ModelsLayout models={models}>
+        <div className="space-y-6 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Edit Model</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Edit {model?.name}
+            </h1>
             <p className="text-gray-600">Modify the selected model.</p>
           </div>
-          <div className="flex space-x-2">
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete Model
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/models')}>
-              Cancel
-            </Button>
-          </div>
-        </div>
 
-        <ModelForm
-          model={model}
-          onSave={handleSave}
-          onCancel={() => navigate('/models')}
-          isSaving={saving}
-        />
-      </div>
+          <ModelForm
+            model={model}
+            onSave={handleSave}
+            onCancel={() => navigate('/models')}
+            onDelete={handleDelete}
+            isSaving={saving}
+          />
+        </div>
+      </ModelsLayout>
     </Layout>
   );
 }

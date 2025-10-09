@@ -9,8 +9,8 @@ import type { ContentItem } from '@/types/content';
 import type { Model } from '@/types/model';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { ContentLayout } from '../common/ContentLayout';
 import { ContentTable } from './ContentTable';
-import { ModelsSidebar } from './ModelsSidebar';
 
 interface ContentProps {
   user: User;
@@ -63,10 +63,6 @@ export function ContentList({ user }: ContentProps) {
     }
   };
 
-  const handleSelectModel = (model: Model) => {
-    navigate(`/content/${model.id}`);
-  };
-
   const handleAddNew = () => {
     if (modelId) navigate(`/content/${modelId}/add`);
   };
@@ -94,21 +90,14 @@ export function ContentList({ user }: ContentProps) {
 
   return (
     <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
-      <div className="flex h-full">
-        <ModelsSidebar
-          models={models}
+      <ContentLayout models={models}>
+        <ContentTable
           selectedModel={selectedModel}
-          onSelectModel={handleSelectModel}
+          contentItems={contentItems}
+          onAddNew={handleAddNew}
+          onEdit={handleEdit}
         />
-        <div className="flex-1 p-6">
-          <ContentTable
-            selectedModel={selectedModel}
-            contentItems={contentItems}
-            onAddNew={handleAddNew}
-            onEdit={handleEdit}
-          />
-        </div>
-      </div>
+      </ContentLayout>
     </Layout>
   );
 }

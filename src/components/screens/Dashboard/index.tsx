@@ -10,7 +10,7 @@ export function Dashboard({ user }: DashboardProps) {
   const breadcrumbs = [{ label: 'Dashboard' }];
   return (
     <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
-      <div className="space-y-6">
+      <div className="space-y-6 py-2 px-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600">

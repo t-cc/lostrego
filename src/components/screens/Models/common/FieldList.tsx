@@ -1,5 +1,7 @@
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { Field } from '@/types/model';
+import { Plus } from 'lucide-react';
 
 import { getFieldTypeIcon } from './utils';
 
@@ -20,7 +22,8 @@ export function FieldList({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Fields</h3>
-        <Button type="button" onClick={onAddField} size="sm">
+        <Button type="button" variant="outline" onClick={onAddField} size="sm">
+          <Plus className="size-4" />
           Add Field
         </Button>
       </div>
@@ -44,7 +47,7 @@ export function FieldList({
                 <div className="flex items-center space-x-2">
                   {(() => {
                     const Icon = getFieldTypeIcon(field.type);
-                    return <Icon className="w-4 h-4" />;
+                    return <Icon className="size-4" />;
                   })()}
                   <button
                     type="button"
@@ -53,10 +56,21 @@ export function FieldList({
                   >
                     {field.name}
                   </button>
-                  {field.required && <span className="text-red-500">*</span>}
                 </div>
-                <div className="flex-1 text-sm text-gray-600">
-                  {field.description}
+                <div className="flex-1 text-sm text-gray-600 flex items-center space-x-2">
+                  <div>{field.description}</div>
+                  <div className="flex space-x-1">
+                    {field.required && (
+                      <Badge variant="secondary" className="text-xs h-5">
+                        Required
+                      </Badge>
+                    )}
+                    {field.useAsTitle && (
+                      <Badge variant="secondary" className="text-xs h-5">
+                        Title
+                      </Badge>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
