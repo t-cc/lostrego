@@ -40,9 +40,9 @@ export function NavUser({ user }: { user: User }) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                {user.photoURL ? (
+                {user.avatar ? (
                   <AvatarImage
-                    src={user.photoURL}
+                    src={`data:image/jpeg;base64,${user.avatar}`}
                     alt={user.displayName || 'User'}
                   />
                 ) : null}
@@ -68,7 +68,12 @@ export function NavUser({ user }: { user: User }) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  {user.photoURL ? (
+                  {user.avatar ? (
+                    <AvatarImage
+                      src={`data:image/jpeg;base64,${user.avatar}`}
+                      alt={user.displayName || 'User'}
+                    />
+                  ) : user.photoURL ? (
                     <AvatarImage
                       src={user.photoURL}
                       alt={user.displayName || 'User'}

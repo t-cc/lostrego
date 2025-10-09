@@ -21,13 +21,13 @@ export function Dashboard({ user }: DashboardProps) {
           <div className="rounded-lg border bg-white p-6 shadow">
             <h3 className="text-lg font-semibold text-gray-900">Profile</h3>
             <div className="mt-4 space-y-2">
-              {user.photoURL && (
+              {user.avatar ? (
                 <img
-                  src={user.photoURL}
+                  src={`data:image/jpeg;base64,${user.avatar}`}
                   alt="Profile"
                   className="h-16 w-16 rounded-full"
                 />
-              )}
+              ) : null}
               <p className="text-sm text-gray-600">
                 <span className="font-medium">Nombre:</span>{' '}
                 {user.displayName || 'N/A'}
