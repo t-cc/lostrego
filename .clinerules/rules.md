@@ -23,7 +23,7 @@ Response Constraints
 Naming and Conventions
 
 - Use lowercase with dashes for directories (e.g., components/auth-wizard).
-- Favor named exports for components.TypeScript Usage
+- Named exports for components.TypeScript Usage. Use export function NameComponent() for functional components, and export const NameComponent = React.forwardRef((props, ref) => {}) for class components.
 - Use TypeScript for all code; prefer interfaces over types.
 - Avoid enums; use maps instead.
 - Use functional components with TypeScript interfaces.Syntax and Formatting

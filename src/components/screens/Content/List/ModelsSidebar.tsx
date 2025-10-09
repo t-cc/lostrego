@@ -12,11 +12,12 @@ function ModelsSidebar({
   selectedModel,
   onSelectModel,
 }: ModelsSidebarProps) {
+  const sortedModels = models.sort((a, b) => a.name.localeCompare(b.name));
   return (
     <div className="w-64 bg-white border-r border-gray-200 p-4">
       <h3 className="text-lg font-semibold mb-4">Models</h3>
       <div className="space-y-2">
-        {models.map((model) => (
+        {sortedModels.map((model) => (
           <Button
             key={model.id}
             variant="ghost"

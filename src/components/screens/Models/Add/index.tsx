@@ -14,7 +14,7 @@ interface AddModelProps {
   user: User;
 }
 
-export default function AddModel({ user }: AddModelProps) {
+export function AddModel({ user }: AddModelProps) {
   const [saving, setSaving] = useState(false);
 
   const navigate = useNavigate();

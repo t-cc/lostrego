@@ -15,7 +15,7 @@ interface ModelsProps {
   user: User;
 }
 
-export default function ListModels({ user }: ModelsProps) {
+export function ListModels({ user }: ModelsProps) {
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -1,0 +1,109 @@
+import { useEffect, useState } from 'react';
+
+import Layout from '@/components/layout/Layout';
+import { menuItems } from '@/config/menu';
+import { contentService } from '@/lib/content';
+import { modelService } from '@/lib/models';
+import type { User } from '@/types/auth';
+import type { ContentItem } from '@/types/content';
+import type { Model } from '@/types/model';
+import { useNavigate, useParams } from 'react-router-dom';
+
+import { ContentTable } from './ContentTable';
+import { ModelsSidebar } from './ModelsSidebar';
+
+interface ContentProps {
+  user: User;
+}
+
+export function ContentList({ user }: ContentProps) {
+  const { modelId } = useParams<{ modelId: string }>();
+  const navigate = useNavigate();
+  const [models, setModels] = useState<Model[]>([]);
+  const [contentItems, setContentItems] = useState<ContentItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadModels();
+  }, []);
+
+  useEffect(() => {
+    if (models.length > 0 && modelId) {
+      const selected = models.find((m) => m.id === modelId);
+      if (!selected) {
+        // sort models and go to first
+        const sorted = [...models].sort((a, b) => a.name.localeCompare(b.name));
+        navigate(`/content/${sorted[0].id}`, { replace: true });
+      } else {
+        loadContent(selected.id!);
+      }
+    } else if (models.length > 0 && !modelId) {
+      const sorted = [...models].sort((a, b) => a.name.localeCompare(b.name));
+      navigate(`/content/${sorted[0].id}`, { replace: true });
+    }
+  }, [models, modelId, navigate]);
+
+  const loadModels = async () => {
+    try {
+      const modelsData = await modelService.getAll();
+      setModels(modelsData);
+    } catch (error) {
+      console.error('Error loading models:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadContent = async (modelId: string) => {
+    try {
+      const items = await contentService.getByModelId(modelId);
+      setContentItems(items);
+    } catch (error) {
+      console.error('Error loading content items:', error);
+    }
+  };
+
+  const handleSelectModel = (model: Model) => {
+    navigate(`/content/${model.id}`);
+  };
+
+  const handleAddNew = () => {
+    if (modelId) navigate(`/content/${modelId}/add`);
+  };
+
+  const handleEdit = (item: ContentItem) => {
+    if (modelId) navigate(`/content/${modelId}/${item.id}`);
+  };
+
+  const selectedModel = models.find((m) => m.id === modelId) || null;
+
+  if (loading) {
+    return (
+      <Layout menuItems={menuItems} user={user}>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout menuItems={menuItems} user={user}>
+      <div className="flex h-full">
+        <ModelsSidebar
+          models={models}
+          selectedModel={selectedModel}
+          onSelectModel={handleSelectModel}
+        />
+        <div className="flex-1 p-6">
+          <ContentTable
+            selectedModel={selectedModel}
+            contentItems={contentItems}
+            onAddNew={handleAddNew}
+            onEdit={handleEdit}
+          />
+        </div>
+      </div>
+    </Layout>
+  );
+}

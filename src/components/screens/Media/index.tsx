@@ -33,7 +33,7 @@ interface MediaProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-export default function Media({
+export function Media({
   user,
   isPopup = false,
   onSelect,

@@ -14,7 +14,7 @@ interface EditModelProps {
   user: User;
 }
 
-export default function EditModel({ user }: EditModelProps) {
+export function EditModel({ user }: EditModelProps) {
   const { id } = useParams<{ id: string }>();
   const [model, setModel] = useState<Model | null>(null);
   const [loading, setLoading] = useState(true);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import Media from '@/components/screens/Media';
+import { Media } from '@/components/screens/Media';
 import type { MediaFile } from '@/components/screens/Media/types';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';

@@ -1,12 +1,53 @@
-import Content from '@/components/screens/Content';
+import { useEffect } from 'react';
+
+import { AddContent } from '@/components/screens/Content/Add';
+import { EditContent } from '@/components/screens/Content/Edit';
+import { ContentList } from '@/components/screens/Content/List';
 import { Dashboard } from '@/components/screens/Dashboard';
 import { Login } from '@/components/screens/Login';
-import Media from '@/components/screens/Media';
-import AddModel from '@/components/screens/Models/Add';
-import EditModel from '@/components/screens/Models/Edit';
-import ListModels from '@/components/screens/Models/List';
+import { Media } from '@/components/screens/Media';
+import { AddModel } from '@/components/screens/Models/Add';
+import { EditModel } from '@/components/screens/Models/Edit';
+import { ListModels } from '@/components/screens/Models/List';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { modelService } from '@/lib/models';
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useNavigate,
+} from 'react-router-dom';
+
+const ContentRedirect = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const models = await modelService.getAll();
+        if (models.length > 0) {
+          const sorted = [...models].sort((a, b) =>
+            a.name.localeCompare(b.name)
+          );
+          navigate(`/content/${sorted[0].id}`, { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
+      } catch (error) {
+        console.error(error);
+        navigate('/dashboard', { replace: true });
+      }
+    };
+    load();
+  }, [navigate]);
+
+  return (
+    <div className="flex justify-center items-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+    </div>
+  );
+};
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -60,8 +101,24 @@ function AppContent() {
       />
       <Route
         path="/content"
+        element={user ? <ContentRedirect /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/content/:modelId"
         element={
-          user ? <Content user={user} /> : <Navigate to="/login" replace />
+          user ? <ContentList user={user} /> : <Navigate to="/login" replace />
+        }
+      />
+      <Route
+        path="/content/:modelId/add"
+        element={
+          user ? <AddContent user={user} /> : <Navigate to="/login" replace />
+        }
+      />
+      <Route
+        path="/content/:modelId/:contentId"
+        element={
+          user ? <EditContent user={user} /> : <Navigate to="/login" replace />
         }
       />
       <Route
