@@ -1,73 +1,101 @@
-# React + TypeScript + Vite
+# Lostrego CMS - Firebase Functions API
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto incluye funciones de Firebase para exponer una API REST que proporciona acceso a los modelos y contenidos del CMS.
 
-Currently, two official plugins are available:
+## Funciones Disponibles
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Endpoints
 
-## React Compiler
+- `GET /` - Health check
+- `GET /api/models` - Obtiene todos los modelos
+- `GET /api/models/:modelId` - Obtiene un modelo específico por ID
+- `GET /api/content/:modelId` - Obtiene todo el contenido de un modelo específico
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+### Ejemplos de Uso
 
-## Expanding the ESLint configuration
+#### Obtener todos los modelos
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+GET /api/models
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+#### Obtener un modelo específico
 
-```js
-// eslint.config.js
-import reactDom from 'eslint-plugin-react-dom';
-import reactX from 'eslint-plugin-react-x';
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+GET /api/models/{modelId}
 ```
+
+#### Obtener contenido de un modelo
+
+```bash
+GET /api/content/{modelId}
+```
+
+## Configuración
+
+### Variables de Entorno
+
+Asegúrate de configurar las siguientes variables de entorno en Firebase Functions:
+
+- `FIREBASE_API_KEY`
+- `FIREBASE_AUTH_DOMAIN`
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_STORAGE_BUCKET`
+- `FIREBASE_MESSAGING_SENDER_ID`
+- `FIREBASE_APP_ID`
+
+## Despliegue
+
+### Construir funciones
+
+```bash
+cd functions
+pnpm build
+```
+
+### Desplegar funciones
+
+```bash
+cd functions
+pnpm deploy
+```
+
+### Ejecutar en emulador local
+
+```bash
+cd functions
+pnpm serve
+```
+
+## Tecnologías
+
+- **Hono**: Framework web moderno y rápido para la API
+- **Firebase Functions**: Plataforma serverless
+- **Firebase Admin SDK**: Para acceder a Firestore
+- **TypeScript**: Tipado estático para JavaScript
+
+## Estructura del Proyecto
+
+```
+functions/
+├── src/
+│   ├── index.ts          # Punto de entrada de la función
+│   ├── routes.ts         # Definición de rutas de la API
+│   └── services/
+│       └── contentService.ts  # Servicios para acceder a datos
+├── package.json
+├── tsconfig.json
+└── lib/                 # Archivos compilados
+```
+
+## Desarrollo
+
+Para desarrollar localmente:
+
+1. Instala dependencias: `pnpm install`
+2. Construye: `pnpm build`
+3. Ejecuta pruebas o emulador
+
+## Notas
+
+La API está diseñada para ser consumida por aplicaciones externas que necesiten acceder a los datos del CMS sin requerir autenticación directa en Firebase.
