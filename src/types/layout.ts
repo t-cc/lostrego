@@ -9,6 +9,12 @@ export interface MenuItem {
   children?: MenuItem[];
 }
 
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
 export interface LayoutProps {
   children: React.ReactNode;
+  breadcrumbs?: BreadcrumbItem[];
 }

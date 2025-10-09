@@ -248,8 +248,9 @@ export function Media({
     );
   }
 
+  const breadcrumbs = [{ label: 'Media' }];
   return (
-    <Layout menuItems={menuItems} user={user}>
+    <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
       {content}
     </Layout>
   );

@@ -78,8 +78,9 @@ export function ContentList({ user }: ContentProps) {
   const selectedModel = models.find((m) => m.id === modelId) || null;
 
   if (loading) {
+    const breadcrumbs = [{ label: 'Content' }, { label: '...' }];
     return (
-      <Layout menuItems={menuItems} user={user}>
+      <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         </div>
@@ -87,8 +88,12 @@ export function ContentList({ user }: ContentProps) {
     );
   }
 
+  const breadcrumbs = selectedModel
+    ? [{ label: 'Content', href: '/content' }, { label: selectedModel.name }]
+    : [{ label: 'Content' }];
+
   return (
-    <Layout menuItems={menuItems} user={user}>
+    <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
       <div className="flex h-full">
         <ModelsSidebar
           models={models}

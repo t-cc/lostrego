@@ -1,8 +1,10 @@
 import {
   Breadcrumb,
   BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -12,6 +14,7 @@ import {
 } from '@/components/ui/sidebar';
 import type { User } from '@/types/auth';
 import type { LayoutProps, MenuItem } from '@/types/layout';
+import { Link } from 'react-router-dom';
 
 import MenuSidebar from './MenuSidebar';
 
@@ -20,7 +23,12 @@ interface AppLayoutProps extends LayoutProps {
   user: User;
 }
 
-export default function Layout({ children, menuItems, user }: AppLayoutProps) {
+export default function Layout({
+  children,
+  menuItems,
+  user,
+  breadcrumbs,
+}: AppLayoutProps) {
   return (
     <SidebarProvider>
       <MenuSidebar menuItems={menuItems} user={user} />
@@ -32,14 +40,32 @@ export default function Layout({ children, menuItems, user }: AppLayoutProps) {
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
             />
-            {/* TODO: Breadcrumb */}
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="line-clamp-1">
-                    Project Management & Task Tracking
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
+                {breadcrumbs ? (
+                  breadcrumbs.map((item, index) => (
+                    <BreadcrumbItem key={index}>
+                      {index === breadcrumbs.length - 1 ? (
+                        <BreadcrumbPage className="line-clamp-1">
+                          {item.label}
+                        </BreadcrumbPage>
+                      ) : (
+                        <BreadcrumbLink asChild>
+                          <Link to={item.href!}>{item.label}</Link>
+                        </BreadcrumbLink>
+                      )}
+                      {index < breadcrumbs.length - 1 && (
+                        <BreadcrumbSeparator />
+                      )}
+                    </BreadcrumbItem>
+                  ))
+                ) : (
+                  <BreadcrumbItem>
+                    <BreadcrumbPage className="line-clamp-1">
+                      Home
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                )}
               </BreadcrumbList>
             </Breadcrumb>
           </div>

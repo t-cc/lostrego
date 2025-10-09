@@ -19,6 +19,11 @@ export function AddModel({ user }: AddModelProps) {
 
   const navigate = useNavigate();
 
+  const breadcrumbs = [
+    { label: 'Models', href: '/models' },
+    { label: 'New Model' },
+  ];
+
   const handleSave = async (modelData: {
     name: string;
     description: string;
@@ -37,7 +42,7 @@ export function AddModel({ user }: AddModelProps) {
   };
 
   return (
-    <Layout menuItems={menuItems} user={user}>
+    <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>

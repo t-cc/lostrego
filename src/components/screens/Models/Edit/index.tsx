@@ -80,8 +80,12 @@ export function EditModel({ user }: EditModelProps) {
   };
 
   if (loading) {
+    const breadcrumbs = [
+      { label: 'Models', href: '/models' },
+      { label: 'Edit Model' },
+    ];
     return (
-      <Layout menuItems={menuItems} user={user}>
+      <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
         </div>
@@ -90,8 +94,12 @@ export function EditModel({ user }: EditModelProps) {
   }
 
   if (error || !model) {
+    const breadcrumbs = [
+      { label: 'Models', href: '/models' },
+      { label: 'Edit Model' },
+    ];
     return (
-      <Layout menuItems={menuItems} user={user}>
+      <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
         <div className="text-center py-12">
           <p className="text-red-600">{error || 'Model not found'}</p>
           <Button onClick={() => navigate('/models')} className="mt-4">
@@ -102,8 +110,13 @@ export function EditModel({ user }: EditModelProps) {
     );
   }
 
+  const breadcrumbs = [
+    { label: 'Models', href: '/models' },
+    { label: model.name },
+  ];
+
   return (
-    <Layout menuItems={menuItems} user={user}>
+    <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>

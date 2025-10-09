@@ -7,8 +7,9 @@ interface DashboardProps {
 }
 
 export function Dashboard({ user }: DashboardProps) {
+  const breadcrumbs = [{ label: 'Dashboard' }];
   return (
-    <Layout menuItems={menuItems} user={user}>
+    <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>

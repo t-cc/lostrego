@@ -43,8 +43,10 @@ export function ListModels({ user }: ModelsProps) {
     navigate('/models/add');
   };
 
+  const breadcrumbs = [{ label: 'Models' }];
+
   return (
-    <Layout menuItems={menuItems} user={user}>
+    <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>

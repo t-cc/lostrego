@@ -78,8 +78,13 @@ export function EditContent({ user }: EditContentProps) {
   };
 
   if (loading) {
+    const breadcrumbs = [
+      { label: 'Content' },
+      { label: '...' },
+      { label: 'Edit Content' },
+    ];
     return (
-      <Layout menuItems={menuItems} user={user}>
+      <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         </div>
@@ -88,8 +93,13 @@ export function EditContent({ user }: EditContentProps) {
   }
 
   if (!model || !contentItem) {
+    const breadcrumbs = [
+      { label: 'Content' },
+      { label: 'Not Found' },
+      { label: 'Edit Content' },
+    ];
     return (
-      <Layout menuItems={menuItems} user={user}>
+      <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
         <div className="text-center py-8">
           <p className="text-gray-500">Content not found</p>
         </div>
@@ -97,8 +107,14 @@ export function EditContent({ user }: EditContentProps) {
     );
   }
 
+  const breadcrumbs = [
+    { label: 'Content', href: '/content' },
+    { label: model.name, href: `/content/${model.id}` },
+    { label: 'Edit Content' },
+  ];
+
   return (
-    <Layout menuItems={menuItems} user={user}>
+    <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
       <ContentForm
         model={model}
         user={user}
