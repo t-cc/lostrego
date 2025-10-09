@@ -31,6 +31,26 @@ export function ContentTable({
     );
   }
 
+  const getTitleField = (model: Model) => {
+    return model.fields?.find((field) => field.useAsTitle);
+  };
+
+  const getDisplayValue = (item: ContentItem, model: Model) => {
+    const titleField = getTitleField(model);
+
+    if (titleField && titleField.id in item.data) {
+      const value = item.data[titleField.id];
+      if (Array.isArray(value)) {
+        return value.filter(Boolean).join(', ');
+      } else if (typeof value === 'boolean') {
+        return value ? 'True' : 'False';
+      } else {
+        return String(value || '');
+      }
+    }
+    return item.id;
+  };
+
   return (
     <div>
       <div className="flex items-center mb-8">
@@ -47,7 +67,7 @@ export function ContentTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
+            <TableHead>Title</TableHead>
             <TableHead>Created</TableHead>
             <TableHead>Fields Count</TableHead>
           </TableRow>
@@ -60,7 +80,7 @@ export function ContentTable({
                 onClick={() => onEdit(item)}
                 className="cursor-pointer"
               >
-                <TableCell>{item.id}</TableCell>
+                <TableCell>{getDisplayValue(item, selectedModel)}</TableCell>
                 <TableCell>{item.createdAt?.toLocaleDateString()}</TableCell>
                 <TableCell>{Object.keys(item.data).length}</TableCell>
               </TableRow>

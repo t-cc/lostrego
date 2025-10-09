@@ -44,23 +44,25 @@ export default function Layout({
               <BreadcrumbList>
                 {breadcrumbs ? (
                   breadcrumbs.map((item, index) => (
-                    <BreadcrumbItem key={index}>
-                      {index === breadcrumbs.length - 1 ? (
-                        <BreadcrumbPage className="line-clamp-1">
-                          {item.label}
-                        </BreadcrumbPage>
-                      ) : (
-                        <BreadcrumbLink asChild>
-                          <Link to={item.href!}>{item.label}</Link>
-                        </BreadcrumbLink>
-                      )}
+                    <>
+                      <BreadcrumbItem key={index}>
+                        {index === breadcrumbs.length - 1 ? (
+                          <BreadcrumbPage className="line-clamp-1">
+                            {item.label}
+                          </BreadcrumbPage>
+                        ) : (
+                          <BreadcrumbLink asChild>
+                            <Link to={item.href!}>{item.label}</Link>
+                          </BreadcrumbLink>
+                        )}
+                      </BreadcrumbItem>
                       {index < breadcrumbs.length - 1 && (
-                        <BreadcrumbSeparator />
+                        <BreadcrumbSeparator key={'separator-' + index} />
                       )}
-                    </BreadcrumbItem>
+                    </>
                   ))
                 ) : (
-                  <BreadcrumbItem>
+                  <BreadcrumbItem key={'home'}>
                     <BreadcrumbPage className="line-clamp-1">
                       Home
                     </BreadcrumbPage>

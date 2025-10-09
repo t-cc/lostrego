@@ -137,24 +137,6 @@ export function FieldForm({ field, onSave, onDelete }: FieldFormProps) {
           <div className="md:col-span-2">
             <FormField
               control={form.control}
-              name="description"
-              render={({ field: fieldProps }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Optional field description"
-                      {...fieldProps}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="md:col-span-2">
-            <FormField
-              control={form.control}
               name="appId"
               render={({ field: fieldProps }) => (
                 <FormItem>
@@ -175,6 +157,24 @@ export function FieldForm({ field, onSave, onDelete }: FieldFormProps) {
                         <RefreshCw className="h-4 w-4" />
                       </Button>
                     </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field: fieldProps }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Optional field description"
+                      {...fieldProps}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

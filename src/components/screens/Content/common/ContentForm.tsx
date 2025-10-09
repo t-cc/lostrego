@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import type { User } from '@/types/auth';
 import type { ContentItem } from '@/types/content';
-import type { Model } from '@/types/model';
+import type { Field, Model } from '@/types/model';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
 import { BooleanField } from './BooleanField';
 import { MarkdownField } from './MarkdownField';
@@ -21,7 +24,7 @@ interface ContentFormProps {
   onDelete?: () => void;
 }
 
-function ContentForm({
+export function ContentForm({
   model,
   user,
   onSubmit,
@@ -29,96 +32,181 @@ function ContentForm({
   initialData,
   onDelete,
 }: ContentFormProps) {
-  const [formData, setFormData] = useState<
-    Record<string, string | boolean | string[] | undefined>
-  >(initialData?.data || {});
+  // Create dynamic Zod schema based on model fields
+  const createSchema = (fields: Field[]) => {
+    const shape: Record<string, z.ZodTypeAny> = {};
 
-  useEffect(() => {
-    setFormData(initialData?.data || {});
-  }, [initialData]);
+    fields.forEach((field) => {
+      if (!field.id) return; // Skip fields without id
 
-  const handleFieldChange = (
-    fieldName: string,
-    value: string | boolean | string[] | undefined
+      let fieldSchema: z.ZodTypeAny;
+      switch (field.type) {
+        case 'text':
+        case 'markdown':
+          if (field.required) {
+            fieldSchema = z.string().min(1, `${field.name} is required`);
+          } else {
+            fieldSchema = z.string();
+          }
+          break;
+        case 'boolean':
+          fieldSchema = z.boolean();
+          break;
+        case 'media':
+          if (field.required) {
+            fieldSchema = z
+              .array(z.string())
+              .min(1, `${field.name} is required`);
+          } else {
+            fieldSchema = z.array(z.string());
+          }
+          break;
+        default:
+          fieldSchema = z.unknown();
+      }
+
+      shape[field.id] = fieldSchema;
+    });
+
+    return z.object(shape);
+  };
+
+  const sortedFields = useMemo(
+    () => model.fields?.sort((a, b) => a.order - b.order) || [],
+    [model.fields]
+  );
+
+  const schema = useMemo(() => createSchema(sortedFields), [sortedFields]);
+
+  // Create default values for all model fields to ensure proper validation
+  const createDefaultValues = (
+    fields: Field[],
+    existingData?: Record<string, string | boolean | string[] | undefined>
   ) => {
-    setFormData((prev) => ({ ...prev, [fieldName]: value }));
-  };
+    const defaults: Record<string, string | boolean | string[] | undefined> =
+      {};
 
-  const sortedFields = model.fields?.sort((a, b) => a.order - b.order) || [];
+    fields.forEach((field) => {
+      if (!field.id) return; // Skip fields without id
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  const formElement = (
-    <form onSubmit={handleSubmit}>
-      {sortedFields.map((field) => {
+      // Use existing data if available, otherwise set appropriate defaults
+      if (existingData && existingData[field.id] !== undefined) {
+        defaults[field.id] = existingData[field.id];
+      } else {
         switch (field.type) {
           case 'text':
-            return (
-              <TextField
-                key={field.id}
-                field={field}
-                value={formData[field.name] as string}
-                onChange={(value) => handleFieldChange(field.name, value)}
-              />
-            );
-          case 'boolean':
-            return (
-              <BooleanField
-                key={field.id}
-                field={field}
-                value={formData[field.name] as boolean}
-                onChange={(value) => handleFieldChange(field.name, value)}
-              />
-            );
           case 'markdown':
-            return (
-              <MarkdownField
-                key={field.id}
-                field={field}
-                value={formData[field.name] as string}
-                onChange={(value) => handleFieldChange(field.name, value)}
-              />
-            );
+            defaults[field.id] = '';
+            break;
+          case 'boolean':
+            defaults[field.id] = false;
+            break;
           case 'media':
-            return (
-              <MediaField
-                key={field.id}
-                field={field}
-                value={formData[field.name] as string[]}
-                onChange={(value) => handleFieldChange(field.name, value)}
-                user={user}
-              />
-            );
+            defaults[field.id] = [];
+            break;
           default:
-            return null;
+            defaults[field.id] = undefined;
         }
-      })}
+      }
+    });
 
-      <div className="flex justify-end space-x-3 mt-6">
-        {onDelete && initialData && (
-          <Button type="button" onClick={onDelete} variant="destructive">
-            Delete
-          </Button>
-        )}
-        <Button type="button" onClick={onCancel} variant="outline">
-          Cancel
-        </Button>
-        <Button type="submit">{initialData ? 'Update' : 'Create'}</Button>
-      </div>
-    </form>
+    return defaults;
+  };
+
+  const defaultValues = useMemo(
+    () => createDefaultValues(sortedFields, initialData?.data),
+    [sortedFields, initialData?.data]
   );
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+    reset,
+    setValue,
+    getValues,
+  } = useForm<Record<string, string | boolean | string[] | undefined>>({
+    resolver: zodResolver(schema),
+    defaultValues,
+    mode: 'onSubmit',
+  });
+
+  const onFormSubmit = (
+    data: Record<string, string | boolean | string[] | undefined>
+  ) => {
+    onSubmit(data);
+  };
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   return (
     <div className="mx-auto mt-8">
       <h1 className="text-2xl font-bold mb-4">
         {initialData ? 'Edit Content' : 'Create New Content'}
       </h1>
-      {formElement}
+      <form onSubmit={handleSubmit(onFormSubmit)}>
+        {sortedFields.map((field) => {
+          const fieldError = field.id ? errors[field.id] : undefined;
+          switch (field.type) {
+            case 'text':
+              return (
+                <TextField
+                  key={field.id}
+                  field={field}
+                  register={register}
+                  error={fieldError}
+                />
+              );
+            case 'boolean':
+              return (
+                <BooleanField
+                  key={field.id}
+                  field={field}
+                  control={control}
+                  error={fieldError}
+                />
+              );
+            case 'markdown':
+              return (
+                <MarkdownField
+                  key={field.id}
+                  field={field}
+                  register={register}
+                  error={fieldError}
+                />
+              );
+            case 'media':
+              return (
+                <MediaField
+                  key={field.id}
+                  field={field}
+                  control={control}
+                  user={user}
+                  setValue={setValue}
+                  getValues={getValues}
+                  error={fieldError}
+                />
+              );
+            default:
+              return null;
+          }
+        })}
+
+        <div className="flex justify-end space-x-3 mt-6">
+          {onDelete && initialData && (
+            <Button type="button" onClick={onDelete} variant="destructive">
+              Delete
+            </Button>
+          )}
+          <Button type="button" onClick={onCancel} variant="outline">
+            Cancel
+          </Button>
+          <Button type="submit">{initialData ? 'Update' : 'Create'}</Button>
+        </div>
+      </form>
     </div>
   );
 }
-
-export { ContentForm };

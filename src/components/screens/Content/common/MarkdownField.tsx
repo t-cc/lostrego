@@ -1,30 +1,41 @@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { Field } from '@/types/model';
+import type { UseFormRegister } from 'react-hook-form';
 
 interface MarkdownFieldProps {
   field: Field;
-  value?: string;
-  onChange: (value: string) => void;
+  register: UseFormRegister<
+    Record<string, string | boolean | string[] | undefined>
+  >;
+  error?: {
+    message?: string;
+  };
 }
 
-function MarkdownField({ field, value, onChange }: MarkdownFieldProps) {
+function MarkdownField({ field, register, error }: MarkdownFieldProps) {
+  if (!field.id) return null;
+
   return (
     <div className="mb-4">
-      <Label htmlFor={field.name}>{field.name}</Label>
+      <Label htmlFor={field.id}>
+        {field.name}
+        {field.required && <span className="text-red-500 ml-1">*</span>}
+      </Label>
       {field.description && (
         <p className="text-xs text-muted-foreground mb-1">
           {field.description}
         </p>
       )}
       <Textarea
-        id={field.name}
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
+        id={field.id}
+        {...register(field.id)}
         required={field.required}
         rows={4}
         placeholder="Enter markdown content..."
+        className={error ? 'border-red-500' : ''}
       />
+      {error && <p className="text-xs text-red-500 mt-1">{error.message}</p>}
     </div>
   );
 }
