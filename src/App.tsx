@@ -2,7 +2,9 @@ import Content from '@/components/screens/Content';
 import { Dashboard } from '@/components/screens/Dashboard';
 import { Login } from '@/components/screens/Login';
 import Media from '@/components/screens/Media';
-import Models from '@/components/screens/Models';
+import AddModel from '@/components/screens/Models/Add';
+import EditModel from '@/components/screens/Models/Edit';
+import ListModels from '@/components/screens/Models/List';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
@@ -41,7 +43,19 @@ function AppContent() {
       <Route
         path="/models"
         element={
-          user ? <Models user={user} /> : <Navigate to="/login" replace />
+          user ? <ListModels user={user} /> : <Navigate to="/login" replace />
+        }
+      />
+      <Route
+        path="/models/add"
+        element={
+          user ? <AddModel user={user} /> : <Navigate to="/login" replace />
+        }
+      />
+      <Route
+        path="/models/:id"
+        element={
+          user ? <EditModel user={user} /> : <Navigate to="/login" replace />
         }
       />
       <Route
