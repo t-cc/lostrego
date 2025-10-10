@@ -64,7 +64,7 @@ export function ContentForm({
           }
           break;
         default:
-          fieldSchema = z.unknown();
+          fieldSchema = z.union([z.string(), z.boolean(), z.array(z.string())]);
       }
 
       shape[field.id] = fieldSchema;
@@ -78,7 +78,13 @@ export function ContentForm({
     [model.fields]
   );
 
-  const schema = useMemo(() => createSchema(sortedFields), [sortedFields]);
+  const schema = useMemo(
+    () =>
+      createSchema(sortedFields) as z.ZodSchema<
+        Record<string, string | boolean | string[] | undefined>
+      >,
+    [sortedFields]
+  );
 
   // Create default values for all model fields to ensure proper validation
   const createDefaultValues = (
@@ -130,6 +136,7 @@ export function ContentForm({
     setValue,
     getValues,
   } = useForm<Record<string, string | boolean | string[] | undefined>>({
+    // @ts-expect-error - Complex Zod type compatibility issue
     resolver: zodResolver(schema),
     defaultValues,
     mode: 'onSubmit',

@@ -45,10 +45,16 @@ type FieldFormData = z.infer<typeof fieldFormSchema>;
 interface FieldFormProps {
   field: Field | null;
   onSave: (field: Field) => void;
+  onCancel: () => void;
   onDelete?: (field: Field) => void;
 }
 
-export function FieldForm({ field, onSave, onDelete }: FieldFormProps) {
+export function FieldForm({
+  field,
+  onSave,
+  onCancel,
+  onDelete,
+}: FieldFormProps) {
   const form = useForm<FieldFormData>({
     resolver: zodResolver(fieldFormSchema),
     defaultValues: {
@@ -226,6 +232,9 @@ export function FieldForm({ field, onSave, onDelete }: FieldFormProps) {
             </Button>
           )}
           <div className="flex space-x-2 ml-auto">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
             <Button type="submit">{field ? 'Update' : 'Add'} Field</Button>
           </div>
         </div>

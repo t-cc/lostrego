@@ -38,7 +38,7 @@ export function ContentTable({
   const getDisplayValue = (item: ContentItem, model: Model) => {
     const titleField = getTitleField(model);
 
-    if (titleField && titleField.id in item.data) {
+    if (titleField?.id && titleField.id in item.data) {
       const value = item.data[titleField.id];
       if (Array.isArray(value)) {
         return value.filter(Boolean).join(', ');

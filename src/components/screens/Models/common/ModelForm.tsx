@@ -29,7 +29,7 @@ import { toCamelCase } from './utils';
 
 const modelFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
+  description: z.string(),
   appId: z.string().min(1, 'API Field Name is required'),
 });
 
