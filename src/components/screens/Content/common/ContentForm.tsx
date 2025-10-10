@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { BooleanField } from './BooleanField';
+import { DateTimeField } from './DateTimeField';
 import { MarkdownField } from './MarkdownField';
 import { MediaField } from './MediaField';
 import { TextField } from './TextField';
@@ -43,6 +44,7 @@ export function ContentForm({
       switch (field.type) {
         case 'text':
         case 'markdown':
+        case 'datetime':
           if (field.required) {
             fieldSchema = z.string().min(1, `${field.name} is required`);
           } else {
@@ -96,6 +98,7 @@ export function ContentForm({
         switch (field.type) {
           case 'text':
           case 'markdown':
+          case 'datetime':
             defaults[field.id] = '';
             break;
           case 'boolean':
@@ -187,6 +190,15 @@ export function ContentForm({
                   user={user}
                   setValue={setValue}
                   getValues={getValues}
+                  error={fieldError}
+                />
+              );
+            case 'datetime':
+              return (
+                <DateTimeField
+                  key={field.id}
+                  field={field}
+                  register={register}
                   error={fieldError}
                 />
               );

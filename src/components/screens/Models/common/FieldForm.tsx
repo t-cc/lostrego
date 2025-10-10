@@ -29,7 +29,7 @@ import { isValidCamelCase, toCamelCase } from './utils';
 const fieldFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  type: z.enum(['text', 'boolean', 'markdown', 'media']),
+  type: z.enum(['text', 'boolean', 'markdown', 'media', 'datetime']),
   required: z.boolean(),
   appId: z
     .string()
@@ -128,6 +128,7 @@ export function FieldForm({ field, onSave, onDelete }: FieldFormProps) {
                     <SelectItem value="boolean">Boolean</SelectItem>
                     <SelectItem value="markdown">Markdown</SelectItem>
                     <SelectItem value="media">Media</SelectItem>
+                    <SelectItem value="datetime">DateTime</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

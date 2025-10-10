@@ -1,5 +1,5 @@
 import type { Field } from '@/types/model';
-import { CheckSquare, FileText, Hash, Image } from 'lucide-react';
+import { Calendar, CheckSquare, FileText, Hash, Image } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export function getFieldTypeIcon(type: Field['type']): LucideIcon {
@@ -9,6 +9,7 @@ export function getFieldTypeIcon(type: Field['type']): LucideIcon {
       boolean: CheckSquare,
       markdown: Hash,
       media: Image,
+      datetime: Calendar,
     }[type] || FileText
   );
 }
