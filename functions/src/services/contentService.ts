@@ -5,7 +5,7 @@ interface Field {
   id?: string;
   name: string;
   description: string;
-  type: 'text' | 'boolean' | 'markdown' | 'media';
+  type: 'text' | 'boolean' | 'markdown' | 'media' | 'datetime';
   required: boolean;
   appId: string;
   useAsTitle: boolean;
@@ -16,6 +16,7 @@ interface Model {
   id?: string;
   name: string;
   description: string;
+  appId?: string;
   fields?: Field[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -29,7 +30,7 @@ interface ContentItem {
   updatedAt?: Date;
 }
 
-// Initialize Firebase Admin (mover aquí)
+// Initialize Firebase Admin once
 if (!admin.apps.length) {
   admin.initializeApp();
 }
@@ -76,6 +77,33 @@ export async function getModelById(modelId: string): Promise<Model | null> {
     } as Model;
   } catch (error) {
     console.error('Error getting model by ID:', error);
+    throw new Error('Failed to retrieve model');
+  }
+}
+
+export async function getModelByAppId(
+  modelAppId: string
+): Promise<Model | null> {
+  try {
+    const querySnapshot = await db
+      .collection(MODELS_COLLECTION)
+      .where('appId', '==', modelAppId)
+      .limit(1)
+      .get();
+
+    if (querySnapshot.empty) {
+      return null;
+    }
+
+    const doc = querySnapshot.docs[0];
+    return {
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data()?.createdAt?.toDate(),
+      updatedAt: doc.data()?.updatedAt?.toDate(),
+    } as Model;
+  } catch (error) {
+    console.error('Error getting model by appId:', error);
     throw new Error('Failed to retrieve model');
   }
 }

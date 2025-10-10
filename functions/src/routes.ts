@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 
 import {
   getContentByModelId,
-  getModelById,
+  getModelByAppId,
   getModels,
 } from './services/contentService';
 
@@ -19,29 +19,54 @@ app.get('/models', async (c) => {
   }
 });
 
-// GET /api/models/:modelId - Get specific model by ID
-app.get('/models/:modelId', async (c) => {
+// GET /api/content/:modelId - Get all content for a specific model
+app.get('/content/:modelId', async (c) => {
   try {
-    const modelId = c.req.param('modelId');
-    const model = await getModelById(modelId);
+    const modelAppId = c.req.param('modelId'); // modelId param is now modelAppId
+    if (!modelAppId) {
+      return c.json({ error: 'Model appId is required' }, 400);
+    }
 
+    // Find model by appId
+    const model = await getModelByAppId(modelAppId);
     if (!model) {
       return c.json({ error: 'Model not found' }, 404);
     }
 
-    return c.json(model);
-  } catch (error) {
-    console.error('Error fetching model:', error);
-    return c.json({ error: 'Failed to fetch model' }, 500);
-  }
-});
+    if (!model.id) {
+      return c.json({ error: 'Model document ID is missing' }, 500);
+    }
 
-// GET /api/content/:modelId - Get all content for a specific model
-app.get('/content/:modelId', async (c) => {
-  try {
-    const modelId = c.req.param('modelId');
-    const content = await getContentByModelId(modelId);
-    return c.json(content);
+    // Get content by model document id
+    const content = await getContentByModelId(model.id);
+
+    // Transform content data: map field.id keys to field.appId keys
+    const transformedContent = content.map((item) => {
+      if (!model.fields) {
+        return item;
+      }
+
+      const transformedData: Record<
+        string,
+        string | boolean | string[] | undefined
+      > = {};
+      const originalData = item.data || {};
+
+      model.fields.forEach((field) => {
+        const fieldId = field.id;
+        if (fieldId && originalData[fieldId] !== undefined) {
+          // Map from field.id to field.appId
+          transformedData[field.appId] = originalData[fieldId];
+        }
+      });
+
+      return {
+        ...item,
+        data: transformedData,
+      };
+    });
+
+    return c.json(transformedContent);
   } catch (error) {
     console.error('Error fetching content:', error);
     return c.json({ error: 'Failed to fetch content' }, 500);
