@@ -6,7 +6,7 @@ import { Controller } from 'react-hook-form';
 interface BooleanFieldProps {
   field: Field;
   control: import('react-hook-form').Control<
-    Record<string, string | boolean | string[] | undefined>
+    Record<string, string | boolean | string[] | number | undefined>
   >;
   error?: {
     message?: string;

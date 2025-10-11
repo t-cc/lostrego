@@ -39,7 +39,7 @@ export function AddContent({ user }: AddContentProps) {
   const selectedModel = models.find((m) => m.id === modelId) || null;
 
   const handleSubmit = async (
-    data: Record<string, string | boolean | string[] | undefined>
+    data: Record<string, string | boolean | string[] | number | undefined>
   ) => {
     if (!selectedModel) return;
 

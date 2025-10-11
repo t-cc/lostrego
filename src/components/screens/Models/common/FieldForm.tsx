@@ -29,7 +29,7 @@ import { isValidCamelCase, toCamelCase } from './utils';
 const fieldFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  type: z.enum(['text', 'boolean', 'markdown', 'media', 'datetime']),
+  type: z.enum(['text', 'boolean', 'markdown', 'media', 'datetime', 'number']),
   required: z.boolean(),
   appId: z
     .string()
@@ -38,6 +38,7 @@ const fieldFormSchema = z.object({
       message: 'Must be in camelCase format (e.g., fieldName, anotherField)',
     }),
   useAsTitle: z.boolean(),
+  showInList: z.boolean(),
 });
 
 type FieldFormData = z.infer<typeof fieldFormSchema>;
@@ -64,6 +65,7 @@ export function FieldForm({
       required: field?.required || false,
       appId: field?.appId || '',
       useAsTitle: field?.useAsTitle || false,
+      showInList: field?.showInList || false,
     },
   });
 
@@ -91,6 +93,7 @@ export function FieldForm({
       required: data.required,
       appId: data.appId,
       useAsTitle: data.useAsTitle,
+      showInList: data.showInList,
       order: field?.order || 1,
     };
 
@@ -135,6 +138,7 @@ export function FieldForm({
                     <SelectItem value="markdown">Markdown</SelectItem>
                     <SelectItem value="media">Media</SelectItem>
                     <SelectItem value="datetime">DateTime</SelectItem>
+                    <SelectItem value="number">Number</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -215,6 +219,21 @@ export function FieldForm({
                   />
                 </FormControl>
                 <FormLabel className="font-normal">Use as title</FormLabel>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="showInList"
+            render={({ field: fieldProps }) => (
+              <FormItem className="flex items-center space-x-2 space-y-0">
+                <FormControl>
+                  <Switch
+                    checked={fieldProps.value}
+                    onCheckedChange={fieldProps.onChange}
+                  />
+                </FormControl>
+                <FormLabel className="font-normal">Show in list</FormLabel>
               </FormItem>
             )}
           />

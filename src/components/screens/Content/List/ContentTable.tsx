@@ -9,7 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import type { ContentItem } from '@/types/content';
-import type { Model } from '@/types/model';
+import type { Field, Model } from '@/types/model';
 
 interface ContentListProps {
   selectedModel: Model | null;
@@ -60,6 +60,32 @@ export function ContentTable({
     return item.id;
   };
 
+  const getFieldValue = (field: Field, item: ContentItem) => {
+    if (!field || !field.id || !(field.id in item.data)) {
+      return '';
+    }
+
+    const value = item.data[field.id];
+
+    if (field.type === 'media' && Array.isArray(value) && value.length > 0) {
+      const url = value[0]; // Take the first image URL
+      return <ContentImage src={url} alt={field.name} />;
+    } else if (Array.isArray(value)) {
+      return value.filter(Boolean).join(', ');
+    } else if (typeof value === 'boolean') {
+      return value ? 'True' : 'False';
+    } else if (field.type === 'number') {
+      return value === undefined ? '' : String(value);
+    } else {
+      return String(value || '');
+    }
+  };
+
+  const listFields =
+    selectedModel.fields
+      ?.filter((field) => field.showInList)
+      .sort((a, b) => a.order - b.order) || [];
+
   return (
     <div>
       <div className="flex items-center mb-8">
@@ -77,6 +103,9 @@ export function ContentTable({
         <TableHeader>
           <TableRow>
             <TableHead>Title</TableHead>
+            {listFields.map((field) => (
+              <TableHead key={field.id}>{field.name}</TableHead>
+            ))}
             <TableHead>Created</TableHead>
           </TableRow>
         </TableHeader>
@@ -89,12 +118,20 @@ export function ContentTable({
                 className="cursor-pointer"
               >
                 <TableCell>{getDisplayValue(item, selectedModel)}</TableCell>
+                {listFields.map((field) => (
+                  <TableCell key={field.id}>
+                    {getFieldValue(field, item)}
+                  </TableCell>
+                ))}
                 <TableCell>{item.createdAt?.toLocaleDateString()}</TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={3} className="text-center py-8">
+              <TableCell
+                colSpan={listFields.length + 2}
+                className="text-center py-8"
+              >
                 No content items found for this model.
               </TableCell>
             </TableRow>

@@ -48,7 +48,7 @@ export function EditContent({ user }: EditContentProps) {
   const selectedModel = models.find((m) => m.id === modelId) || null;
 
   const handleSubmit = async (
-    data: Record<string, string | boolean | string[] | undefined>
+    data: Record<string, string | boolean | string[] | number | undefined>
   ) => {
     if (!contentItem) return;
 

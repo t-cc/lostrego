@@ -12,13 +12,14 @@ import { BooleanField } from './BooleanField';
 import { DateTimeField } from './DateTimeField';
 import { MarkdownField } from './MarkdownField';
 import { MediaField } from './MediaField';
+import { NumberField } from './NumberField';
 import { TextField } from './TextField';
 
 interface ContentFormProps {
   model: Model;
   user: User;
   onSubmit: (
-    data: Record<string, string | boolean | string[] | undefined>
+    data: Record<string, string | boolean | string[] | number | undefined>
   ) => void;
   onCancel: () => void;
   initialData?: ContentItem;
@@ -54,6 +55,13 @@ export function ContentForm({
         case 'boolean':
           fieldSchema = z.boolean();
           break;
+        case 'number':
+          if (field.required) {
+            fieldSchema = z.number().min(0, `${field.name} is required`);
+          } else {
+            fieldSchema = z.number().optional();
+          }
+          break;
         case 'media':
           if (field.required) {
             fieldSchema = z
@@ -64,7 +72,12 @@ export function ContentForm({
           }
           break;
         default:
-          fieldSchema = z.union([z.string(), z.boolean(), z.array(z.string())]);
+          fieldSchema = z.union([
+            z.string(),
+            z.boolean(),
+            z.array(z.string()),
+            z.number(),
+          ]);
       }
 
       shape[field.id] = fieldSchema;
@@ -81,7 +94,7 @@ export function ContentForm({
   const schema = useMemo(
     () =>
       createSchema(sortedFields) as z.ZodSchema<
-        Record<string, string | boolean | string[] | undefined>
+        Record<string, string | boolean | string[] | number | undefined>
       >,
     [sortedFields]
   );
@@ -89,10 +102,15 @@ export function ContentForm({
   // Create default values for all model fields to ensure proper validation
   const createDefaultValues = (
     fields: Field[],
-    existingData?: Record<string, string | boolean | string[] | undefined>
+    existingData?: Record<
+      string,
+      string | boolean | string[] | number | undefined
+    >
   ) => {
-    const defaults: Record<string, string | boolean | string[] | undefined> =
-      {};
+    const defaults: Record<
+      string,
+      string | boolean | string[] | number | undefined
+    > = {};
 
     fields.forEach((field) => {
       if (!field.id) return; // Skip fields without id
@@ -109,6 +127,9 @@ export function ContentForm({
             break;
           case 'boolean':
             defaults[field.id] = false;
+            break;
+          case 'number':
+            defaults[field.id] = undefined;
             break;
           case 'media':
             defaults[field.id] = [];
@@ -135,15 +156,17 @@ export function ContentForm({
     reset,
     setValue,
     getValues,
-  } = useForm<Record<string, string | boolean | string[] | undefined>>({
-    // @ts-expect-error - Complex Zod type compatibility issue
-    resolver: zodResolver(schema),
-    defaultValues,
-    mode: 'onSubmit',
-  });
+  } = useForm<Record<string, string | boolean | string[] | number | undefined>>(
+    {
+      // @ts-expect-error - Complex Zod type compatibility issue
+      resolver: zodResolver(schema),
+      defaultValues,
+      mode: 'onSubmit',
+    }
+  );
 
   const onFormSubmit = (
-    data: Record<string, string | boolean | string[] | undefined>
+    data: Record<string, string | boolean | string[] | number | undefined>
   ) => {
     onSubmit(data);
   };
@@ -203,6 +226,15 @@ export function ContentForm({
             case 'datetime':
               return (
                 <DateTimeField
+                  key={field.id}
+                  field={field}
+                  register={register}
+                  error={fieldError}
+                />
+              );
+            case 'number':
+              return (
+                <NumberField
                   key={field.id}
                   field={field}
                   register={register}

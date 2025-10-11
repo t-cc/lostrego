@@ -6,7 +6,7 @@ import type { UseFormRegister } from 'react-hook-form';
 interface TextFieldProps {
   field: Field;
   register: UseFormRegister<
-    Record<string, string | boolean | string[] | undefined>
+    Record<string, string | boolean | string[] | number | undefined>
   >;
   error?: {
     message?: string;

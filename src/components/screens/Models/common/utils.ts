@@ -10,6 +10,7 @@ export function getFieldTypeIcon(type: Field['type']): LucideIcon {
       markdown: Hash,
       media: Image,
       datetime: Calendar,
+      number: Hash,
     }[type] || FileText
   );
 }

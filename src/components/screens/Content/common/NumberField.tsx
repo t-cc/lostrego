@@ -3,7 +3,7 @@ import { Label } from '@/components/ui/label';
 import type { Field } from '@/types/model';
 import type { UseFormRegister } from 'react-hook-form';
 
-interface DateTimeFieldProps {
+interface NumberFieldProps {
   field: Field;
   register: UseFormRegister<
     Record<string, string | boolean | string[] | number | undefined>
@@ -13,7 +13,7 @@ interface DateTimeFieldProps {
   };
 }
 
-function DateTimeField({ field, register, error }: DateTimeFieldProps) {
+function NumberField({ field, register, error }: NumberFieldProps) {
   if (!field.id) return null;
 
   return (
@@ -29,8 +29,11 @@ function DateTimeField({ field, register, error }: DateTimeFieldProps) {
       )}
       <Input
         id={field.id}
-        type="datetime-local"
-        {...register(field.id)}
+        type="number"
+        step="any"
+        {...register(field.id, {
+          setValueAs: (value) => (value === '' ? undefined : parseFloat(value)),
+        })}
         required={field.required}
         className={error ? 'border-red-500' : ''}
       />
@@ -39,4 +42,4 @@ function DateTimeField({ field, register, error }: DateTimeFieldProps) {
   );
 }
 
-export { DateTimeField };
+export { NumberField };

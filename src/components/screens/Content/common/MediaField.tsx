@@ -12,12 +12,15 @@ import { Controller } from 'react-hook-form';
 interface MediaFieldProps {
   field: Field;
   control: import('react-hook-form').Control<
-    Record<string, string | boolean | string[] | undefined>
+    Record<string, string | boolean | string[] | number | undefined>
   >;
   user: User;
   setValue: (
-    name: keyof Record<string, string | boolean | string[] | undefined>,
-    value: string | boolean | string[] | undefined,
+    name: keyof Record<
+      string,
+      string | boolean | string[] | number | undefined
+    >,
+    value: string | boolean | string[] | number | undefined,
     options?: Partial<{
       shouldValidate?: boolean;
       shouldDirty?: boolean;
@@ -25,8 +28,8 @@ interface MediaFieldProps {
     }>
   ) => void;
   getValues: (
-    name: keyof Record<string, string | boolean | string[] | undefined>
-  ) => string | boolean | string[] | undefined;
+    name: keyof Record<string, string | boolean | string[] | number | undefined>
+  ) => string | boolean | string[] | number | undefined;
   error?: {
     message?: string;
   };
