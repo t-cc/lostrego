@@ -18,7 +18,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
@@ -48,7 +47,6 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -63,7 +61,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full">
-      <div className="rounded-md border">
+      <div className="rounded-md border min-w-full">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -97,7 +95,7 @@ export function DataTable<TData, TValue>({
                     : {})}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="!whitespace-normal">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
