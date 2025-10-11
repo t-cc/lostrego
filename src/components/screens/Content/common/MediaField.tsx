@@ -2,9 +2,11 @@ import { useState } from 'react';
 
 import { Media } from '@/components/screens/Media';
 import { Button } from '@/components/ui/button';
+import { ContentImage } from '@/components/ui/content-image';
 import { Label } from '@/components/ui/label';
 import type { User } from '@/types/auth';
 import type { Field } from '@/types/model';
+import { FolderOpen } from 'lucide-react';
 import { Controller } from 'react-hook-form';
 
 interface MediaFieldProps {
@@ -69,13 +71,15 @@ function MediaField({
 
               {/* Display selected media */}
               {mediaUrls.length > 0 && (
-                <div className="mb-2 grid grid-cols-2 gap-2">
+                <div className="mb-2 flex flex-col gap-2">
                   {mediaUrls.map((url: string, index: number) => (
-                    <div key={`${url}-${index}`} className="relative">
-                      <img
+                    <div
+                      key={`${url}-${index}`}
+                      className="relative max-w-[200px] rounded-lg shadow-md"
+                    >
+                      <ContentImage
                         src={url}
                         alt={`Selected media ${index + 1}`}
-                        className="w-full h-20 object-cover rounded border"
                       />
                       <button
                         type="button"
@@ -94,8 +98,9 @@ function MediaField({
                 type="button"
                 variant="outline"
                 onClick={() => setShowMediaPicker(true)}
-                className={`w-full ${error ? 'border-red-500' : ''}`}
+                className={` ${error ? 'border-red-500' : ''}`}
               >
+                <FolderOpen />
                 Select Media
               </Button>
               {error && (

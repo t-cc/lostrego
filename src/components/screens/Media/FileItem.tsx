@@ -23,14 +23,14 @@ export default function FileItem({
 
   return (
     <div
-      className={`aspect-square bg-gray-100 rounded-lg overflow-hidden group ${isSelectable ? 'cursor-pointer' : ''} relative`}
+      className={`aspect-video shadow-md bg-gray-100 p-2 rounded-lg overflow-hidden group ${isSelectable ? 'cursor-pointer' : ''} relative`}
       onClick={handleClick}
     >
       {file.url && (
         <img
           src={file.url}
           alt={file.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+          className="w-full h-full object-contain group-hover:scale-105 transition-transform"
           loading="lazy"
         />
       )}

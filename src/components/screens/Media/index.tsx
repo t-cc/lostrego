@@ -44,7 +44,7 @@ export function Media({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
-  const pageSize = 20;
+  const pageSize = 12;
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{
     [key: string]: number;

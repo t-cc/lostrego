@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { ContentImage } from '@/components/ui/content-image';
 import {
   Table,
   TableBody,
@@ -40,7 +41,15 @@ export function ContentTable({
 
     if (titleField?.id && titleField.id in item.data) {
       const value = item.data[titleField.id];
-      if (Array.isArray(value)) {
+
+      if (
+        titleField.type === 'media' &&
+        Array.isArray(value) &&
+        value.length > 0
+      ) {
+        const url = value[0]; // Take the first image URL
+        return <ContentImage src={url} alt="Title" />;
+      } else if (Array.isArray(value)) {
         return value.filter(Boolean).join(', ');
       } else if (typeof value === 'boolean') {
         return value ? 'True' : 'False';
@@ -69,7 +78,6 @@ export function ContentTable({
           <TableRow>
             <TableHead>Title</TableHead>
             <TableHead>Created</TableHead>
-            <TableHead>Fields Count</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -82,12 +90,11 @@ export function ContentTable({
               >
                 <TableCell>{getDisplayValue(item, selectedModel)}</TableCell>
                 <TableCell>{item.createdAt?.toLocaleDateString()}</TableCell>
-                <TableCell>{Object.keys(item.data).length}</TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={4} className="text-center py-8">
+              <TableCell colSpan={3} className="text-center py-8">
                 No content items found for this model.
               </TableCell>
             </TableRow>
