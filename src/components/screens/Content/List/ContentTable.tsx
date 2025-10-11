@@ -1,15 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { ContentImage } from '@/components/ui/content-image';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { DataTable } from '@/components/ui/data-table';
 import type { ContentItem } from '@/types/content';
 import type { Field, Model } from '@/types/model';
+import type { ColumnDef } from '@tanstack/react-table';
+import { ArrowUpDown } from 'lucide-react';
 
 interface ContentListProps {
   selectedModel: Model | null;
@@ -81,10 +76,113 @@ export function ContentTable({
     }
   };
 
+  const getSortValue = (item: ContentItem, model: Model) => {
+    const titleField = getTitleField(model);
+
+    if (titleField?.id && titleField.id in item.data) {
+      const value = item.data[titleField.id];
+
+      if (
+        titleField.type === 'media' &&
+        Array.isArray(value) &&
+        value.length > 0
+      ) {
+        return ''; // media not sortable by image
+      } else if (Array.isArray(value)) {
+        return value.filter(Boolean).join(', ');
+      } else if (typeof value === 'boolean') {
+        return value ? 1 : 0;
+      } else {
+        return String(value || '');
+      }
+    }
+    return item.id;
+  };
+
+  const getFieldSortValue = (field: Field, item: ContentItem) => {
+    if (!field || !field.id || !(field.id in item.data)) {
+      return '';
+    }
+
+    const value = item.data[field.id];
+
+    if (field.type === 'media' && Array.isArray(value) && value.length > 0) {
+      return ''; // not sortable
+    } else if (Array.isArray(value)) {
+      return value.filter(Boolean).join(', ');
+    } else if (typeof value === 'boolean') {
+      return value ? 1 : 0;
+    } else if (field.type === 'number') {
+      return value === undefined ? '' : String(value);
+    } else {
+      return String(value || '');
+    }
+  };
+
   const listFields =
     selectedModel.fields
       ?.filter((field) => field.showInList)
       .sort((a, b) => a.order - b.order) || [];
+
+  const columns: ColumnDef<ContentItem>[] = [
+    {
+      id: 'title',
+      accessorFn: (row) => getSortValue(row, selectedModel),
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Title
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        return <div>{getDisplayValue(row.original, selectedModel)}</div>;
+      },
+    },
+    ...listFields.map(
+      (field) =>
+        ({
+          accessorKey: field.id,
+          accessorFn: (row: ContentItem) => getFieldSortValue(field, row),
+          header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === 'asc')
+                }
+              >
+                {field.name}
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            );
+          },
+          cell: ({ row }) => <div>{getFieldValue(field, row.original)}</div>,
+        }) as ColumnDef<ContentItem>
+    ),
+    {
+      id: 'createdAt',
+      accessorFn: (row) => row.createdAt?.getTime() || 0,
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Created
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        return <div>{row.original.createdAt?.toLocaleDateString()}</div>;
+      },
+    },
+  ];
 
   return (
     <div>
@@ -98,46 +196,7 @@ export function ContentTable({
         <Button onClick={onAddNew}>Add New</Button>
       </div>
       {/* Content Items List */}
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Title</TableHead>
-            {listFields.map((field) => (
-              <TableHead key={field.id}>{field.name}</TableHead>
-            ))}
-            <TableHead>Created</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {contentItems.length > 0 ? (
-            contentItems.map((item) => (
-              <TableRow
-                key={item.id}
-                onClick={() => onEdit(item)}
-                className="cursor-pointer"
-              >
-                <TableCell>{getDisplayValue(item, selectedModel)}</TableCell>
-                {listFields.map((field) => (
-                  <TableCell key={field.id}>
-                    {getFieldValue(field, item)}
-                  </TableCell>
-                ))}
-                <TableCell>{item.createdAt?.toLocaleDateString()}</TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={listFields.length + 2}
-                className="text-center py-8"
-              >
-                No content items found for this model.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+      <DataTable columns={columns} data={contentItems} onRowClick={onEdit} />
     </div>
   );
 }
