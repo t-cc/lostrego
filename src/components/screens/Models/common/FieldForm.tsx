@@ -37,6 +37,7 @@ const fieldFormSchema = z.object({
     'datetime',
     'number',
     'color',
+    'textList',
   ]),
   required: z.boolean(),
   appId: z
@@ -148,6 +149,7 @@ export function FieldForm({
                     <SelectItem value="datetime">DateTime</SelectItem>
                     <SelectItem value="number">Number</SelectItem>
                     <SelectItem value="color">Color</SelectItem>
+                    <SelectItem value="textList">Text List</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

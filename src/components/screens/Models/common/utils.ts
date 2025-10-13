@@ -5,6 +5,7 @@ import {
   FileText,
   Hash,
   Image,
+  List,
   Palette,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -19,6 +20,7 @@ export function getFieldTypeIcon(type: Field['type']): LucideIcon {
       datetime: Calendar,
       number: Hash,
       color: Palette,
+      textList: List,
     }[type] || FileText
   );
 }

@@ -9,7 +9,8 @@ export interface Field {
     | 'media'
     | 'datetime'
     | 'number'
-    | 'color';
+    | 'color'
+    | 'textList';
   required: boolean;
   appId: string;
   useAsTitle: boolean;

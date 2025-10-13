@@ -15,6 +15,7 @@ import { MarkdownField } from './MarkdownField';
 import { MediaField } from './MediaField';
 import { NumberField } from './NumberField';
 import { TextField } from './TextField';
+import { TextListField } from './TextListField';
 
 interface ContentFormProps {
   model: Model;
@@ -74,6 +75,15 @@ export function ContentForm({
           break;
         case 'color':
           fieldSchema = z.string();
+          break;
+        case 'textList':
+          if (field.required) {
+            fieldSchema = z
+              .array(z.string())
+              .min(1, `${field.name} is required`);
+          } else {
+            fieldSchema = z.array(z.string());
+          }
           break;
         default:
           fieldSchema = z.union([
@@ -140,6 +150,9 @@ export function ContentForm({
             break;
           case 'color':
             defaults[field.id] = '#000000';
+            break;
+          case 'textList':
+            defaults[field.id] = [];
             break;
           default:
             defaults[field.id] = undefined;
@@ -251,6 +264,15 @@ export function ContentForm({
             case 'color':
               return (
                 <ColorField
+                  key={field.id}
+                  field={field}
+                  control={control}
+                  error={fieldError}
+                />
+              );
+            case 'textList':
+              return (
+                <TextListField
                   key={field.id}
                   field={field}
                   control={control}
