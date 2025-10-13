@@ -14,7 +14,7 @@ interface ColorFieldProps {
 
 export function ColorField({ field, control, error }: ColorFieldProps) {
   const {
-    field: inputField,
+    field: { value, onChange, onBlur, name, ref },
     fieldState: { error: fieldError },
   } = useController({
     name: field.id!,
@@ -28,7 +28,11 @@ export function ColorField({ field, control, error }: ColorFieldProps) {
       <Input
         id={field.id}
         type="color"
-        {...inputField}
+        value={value as string}
+        onChange={onChange}
+        onBlur={onBlur}
+        name={name}
+        ref={ref}
         className={`mt-1 w-32 ${fieldError ? 'border-red-500' : ''}`}
       />
       {fieldError && (
