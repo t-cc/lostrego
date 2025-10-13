@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { menuItems } from '@/config/menu';
+import { useSite } from '@/context/SiteContext';
 import { storage } from '@/lib/firebase';
 import type { User } from '@/types/auth';
 import {
@@ -50,13 +51,17 @@ export function Media({
     [key: string]: number;
   }>({});
   const [dragActive, setDragActive] = useState(false);
+  const { currentSite } = useSite();
 
   useEffect(() => {
     const fetchFiles = async () => {
       try {
         setLoading(true);
         setError(null);
-        const storageRef = ref(storage);
+
+        // Use the current site's ID to create a site-specific folder path
+        const sitePath = currentSite?.id ? `${currentSite.id}/` : '';
+        const storageRef = ref(storage, sitePath);
         const result = await listAll(storageRef);
         const mediaFiles: MediaFile[] = await Promise.all(
           result.items.map(async (item) => {
@@ -77,7 +82,7 @@ export function Media({
     };
 
     fetchFiles();
-  }, []);
+  }, [currentSite]);
 
   const totalPages = Math.ceil(files.length / pageSize);
   const displayedFiles = files.slice(page * pageSize, (page + 1) * pageSize);
@@ -118,7 +123,10 @@ export function Media({
 
     try {
       const uploadPromises = filesArray.map(async (file) => {
-        const storageRef = ref(storage, file.name);
+        // Use the current site's ID to create a site-specific folder path for uploads
+        const sitePath = currentSite?.id ? `${currentSite.id}/` : '';
+        const fileName = `${sitePath}${file.name}`;
+        const storageRef = ref(storage, fileName);
         const uploadTask = uploadBytesResumable(storageRef, file);
 
         return new Promise<string>((resolve, reject) => {
@@ -142,7 +150,8 @@ export function Media({
 
       await Promise.all(uploadPromises);
       // Refetch files
-      const storageRef = ref(storage);
+      const sitePath = currentSite?.id ? `${currentSite.id}/` : '';
+      const storageRef = ref(storage, sitePath);
       const result = await listAll(storageRef);
       const mediaFiles: MediaFile[] = await Promise.all(
         result.items.map(async (item) => {
