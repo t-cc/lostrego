@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { Field } from '@/types/model';
 import { Plus } from 'lucide-react';
@@ -39,61 +38,47 @@ export function FieldList({
         <div className="space-y-3">
           {fields
             .sort((a, b) => a.order - b.order)
-            .map((field) => (
-              <div
-                key={field.id}
-                className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
-              >
-                <div className="flex items-center space-x-2">
-                  {(() => {
-                    const Icon = getFieldTypeIcon(field.type);
-                    return <Icon className="size-4" />;
-                  })()}
-                  <button
-                    type="button"
-                    className="font-medium hover:underline text-left"
-                    onClick={() => onEditField(field)}
-                  >
-                    {field.name}
-                  </button>
-                </div>
-                <div className="flex-1 text-sm text-gray-600 flex items-center space-x-2">
-                  <div>{field.description}</div>
-                  <div className="flex space-x-1">
-                    {field.required && (
-                      <Badge variant="secondary" className="text-xs h-5">
-                        Required
-                      </Badge>
-                    )}
-                    {field.useAsTitle && (
-                      <Badge variant="secondary" className="text-xs h-5">
-                        Title
-                      </Badge>
-                    )}
+            .map((field) => {
+              const Icon = getFieldTypeIcon(field.type);
+
+              return (
+                <div
+                  key={field.id}
+                  className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
+                >
+                  <div className="flex items-center space-x-2 flex-1">
+                    <Icon className="size-4" />
+                    <button
+                      type="button"
+                      className="font-medium hover:underline text-left truncate"
+                      onClick={() => onEditField(field)}
+                    >
+                      {field.name}
+                    </button>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onMoveField(field.id!, 'up')}
+                      disabled={field.order === 1}
+                    >
+                      ↑
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onMoveField(field.id!, 'down')}
+                      disabled={field.order === fields.length}
+                    >
+                      ↓
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onMoveField(field.id!, 'up')}
-                    disabled={field.order === 1}
-                  >
-                    ↑
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onMoveField(field.id!, 'down')}
-                    disabled={field.order === fields.length}
-                  >
-                    ↓
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
         </div>
       )}
     </div>

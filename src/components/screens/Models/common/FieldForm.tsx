@@ -29,7 +29,15 @@ import { isValidCamelCase, toCamelCase } from './utils';
 const fieldFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  type: z.enum(['text', 'boolean', 'markdown', 'media', 'datetime', 'number']),
+  type: z.enum([
+    'text',
+    'boolean',
+    'markdown',
+    'media',
+    'datetime',
+    'number',
+    'color',
+  ]),
   required: z.boolean(),
   appId: z
     .string()
@@ -139,6 +147,7 @@ export function FieldForm({
                     <SelectItem value="media">Media</SelectItem>
                     <SelectItem value="datetime">DateTime</SelectItem>
                     <SelectItem value="number">Number</SelectItem>
+                    <SelectItem value="color">Color</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

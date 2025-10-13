@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { BooleanField } from './BooleanField';
+import { ColorField } from './ColorField';
 import { DateTimeField } from './DateTimeField';
 import { MarkdownField } from './MarkdownField';
 import { MediaField } from './MediaField';
@@ -70,6 +71,9 @@ export function ContentForm({
           } else {
             fieldSchema = z.array(z.string());
           }
+          break;
+        case 'color':
+          fieldSchema = z.string();
           break;
         default:
           fieldSchema = z.union([
@@ -133,6 +137,9 @@ export function ContentForm({
             break;
           case 'media':
             defaults[field.id] = [];
+            break;
+          case 'color':
+            defaults[field.id] = '#000000';
             break;
           default:
             defaults[field.id] = undefined;
@@ -238,6 +245,15 @@ export function ContentForm({
                   key={field.id}
                   field={field}
                   register={register}
+                  error={fieldError}
+                />
+              );
+            case 'color':
+              return (
+                <ColorField
+                  key={field.id}
+                  field={field}
+                  control={control}
                   error={fieldError}
                 />
               );

@@ -2,7 +2,14 @@ export interface Field {
   id?: string;
   name: string;
   description: string;
-  type: 'text' | 'boolean' | 'markdown' | 'media' | 'datetime' | 'number';
+  type:
+    | 'text'
+    | 'boolean'
+    | 'markdown'
+    | 'media'
+    | 'datetime'
+    | 'number'
+    | 'color';
   required: boolean;
   appId: string;
   useAsTitle: boolean;
