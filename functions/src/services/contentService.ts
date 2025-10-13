@@ -23,7 +23,7 @@ interface Model {
   updatedAt?: Date;
 }
 
-interface ContentItem {
+export interface ContentItem {
   id?: string;
   modelId: string;
   site?: FirebaseFirestore.DocumentReference;
@@ -141,21 +141,41 @@ export async function getModelByAppId(
 }
 
 export async function getContentByModelId(
-  modelRef: string
-): Promise<ContentItem[]> {
+  modelRef: string,
+  page: number = 1,
+  pageSize: number = 20
+): Promise<{ items: ContentItem[]; hasNext: boolean }> {
   try {
-    const query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = db
-      .collection(CONTENT_COLLECTION)
-      .where('modelId', '==', modelRef);
+    const baseQuery: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> =
+      db
+        .collection(CONTENT_COLLECTION)
+        .where('modelId', '==', modelRef)
+        .orderBy('createdAt', 'desc');
 
-    const querySnapshot = await query.orderBy('createdAt', 'desc').get();
+    const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+    const safePageSize =
+      Number.isFinite(pageSize) && pageSize > 0
+        ? Math.min(Math.floor(pageSize), 100)
+        : 20;
+    const offset = (safePage - 1) * safePageSize;
 
-    return querySnapshot.docs.map((doc) => ({
+    const querySnapshot = await baseQuery
+      .offset(offset)
+      .limit(safePageSize + 1)
+      .get();
+
+    const docs = querySnapshot.docs;
+    const hasNext = docs.length > safePageSize;
+    const pageDocs = hasNext ? docs.slice(0, safePageSize) : docs;
+
+    const items = pageDocs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate(),
       updatedAt: doc.data().updatedAt?.toDate(),
     })) as ContentItem[];
+
+    return { items, hasNext };
   } catch (error) {
     console.error('Error getting content by model ID:', error);
     throw new Error('Failed to retrieve content');
