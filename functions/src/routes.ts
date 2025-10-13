@@ -8,36 +8,46 @@ import {
 
 const app = new Hono();
 
-// GET /api/models - Get all models
-app.get('/models', async (c) => {
+// GET /api/:siteId/models - Get all models for a specific site
+app.get('/:siteAppId/models', async (c) => {
   try {
-    const models = await getModels();
+    const siteAppId = c.req.param('siteAppId');
+    if (!siteAppId) {
+      return c.json({ error: 'Site appId is required' }, 400);
+    }
+
+    const models = await getModels(siteAppId);
     return c.json(models);
   } catch (error) {
     console.error('Error fetching models:', error);
+    if (error instanceof Error && error.message.includes('not found')) {
+      return c.json({ error: error.message }, 404);
+    }
     return c.json({ error: 'Failed to fetch models' }, 500);
   }
 });
 
-// GET /api/content/:modelId - Get all content for a specific model
-app.get('/content/:modelId', async (c) => {
+// GET /api/:siteAppId/content/:modelId - Get all content for a specific model in a site
+app.get('/:siteAppId/content/:modelId', async (c) => {
   try {
-    const modelAppId = c.req.param('modelId'); // modelId param is now modelAppId
-    if (!modelAppId) {
-      return c.json({ error: 'Model appId is required' }, 400);
+    const siteAppId = c.req.param('siteAppId');
+    const modelAppId = c.req.param('modelId');
+
+    if (!siteAppId || !modelAppId) {
+      return c.json({ error: 'Site appId and Model appId are required' }, 400);
     }
 
-    // Find model by appId
-    const model = await getModelByAppId(modelAppId);
+    // Find model by appId and siteAppId
+    const model = await getModelByAppId(modelAppId, siteAppId);
     if (!model) {
-      return c.json({ error: 'Model not found' }, 404);
+      return c.json({ error: 'Model not found in this site' }, 404);
     }
 
     if (!model.id) {
       return c.json({ error: 'Model document ID is missing' }, 500);
     }
 
-    // Get content by model document id
+    // Get content by model document id and siteAppId
     const content = await getContentByModelId(model.id);
 
     // Transform content data: map field.id keys to field.appId keys

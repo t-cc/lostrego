@@ -3,6 +3,8 @@ import { Hono } from 'hono';
 
 import { apiRoutes } from './routes';
 
+// #
+
 // Initialize Hono app
 const app = new Hono();
 

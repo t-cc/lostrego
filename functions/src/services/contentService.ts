@@ -17,6 +17,7 @@ interface Model {
   name: string;
   description: string;
   appId?: string;
+  site?: FirebaseFirestore.DocumentReference;
   fields?: Field[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -25,14 +26,18 @@ interface Model {
 interface ContentItem {
   id?: string;
   modelId: string;
+  site?: FirebaseFirestore.DocumentReference;
   data: Record<string, string | boolean | string[] | undefined>;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-// Initialize Firebase Admin once
+// Initialize Firebase Admin
 if (!admin.apps.length) {
+  // Firebase Admin will automatically use GOOGLE_APPLICATION_CREDENTIALS env var if set
+  // or use default credentials in production
   admin.initializeApp();
+  console.log('Firebase Admin initialized');
 }
 
 const db = admin.firestore();
@@ -40,13 +45,33 @@ const db = admin.firestore();
 // Collection names
 const MODELS_COLLECTION = 'models';
 const CONTENT_COLLECTION = 'content';
+const SITES_COLLECTION = 'site';
 
-export async function getModels(): Promise<Model[]> {
+// Helper function to get site reference by appId
+async function getSiteReference(
+  siteAppId: string
+): Promise<FirebaseFirestore.DocumentReference> {
+  const siteQuery = await db
+    .collection(SITES_COLLECTION)
+    .where('appId', '==', siteAppId)
+    .limit(1)
+    .get();
+  if (siteQuery.empty) {
+    throw new Error(`Site with appId '${siteAppId}' not found`);
+  }
+
+  return siteQuery.docs[0].ref;
+}
+
+export async function getModels(siteAppId: string): Promise<Model[]> {
   try {
-    const querySnapshot = await db
-      .collection(MODELS_COLLECTION)
-      .orderBy('createdAt', 'desc')
-      .get();
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> =
+      db.collection(MODELS_COLLECTION);
+
+    const siteRef = await getSiteReference(siteAppId);
+    query = query.where('site', '==', siteRef);
+
+    const querySnapshot = await query.orderBy('createdAt', 'desc').get();
 
     return querySnapshot.docs.map((doc) => ({
       id: doc.id,
@@ -82,41 +107,48 @@ export async function getModelById(modelId: string): Promise<Model | null> {
 }
 
 export async function getModelByAppId(
-  modelAppId: string
+  modelAppId: string,
+  siteAppId: string
 ): Promise<Model | null> {
   try {
-    const querySnapshot = await db
+    const siteRef = await getSiteReference(siteAppId);
+
+    const query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = db
       .collection(MODELS_COLLECTION)
       .where('appId', '==', modelAppId)
-      .limit(1)
-      .get();
+      .where('site', '==', siteRef);
+
+    const querySnapshot = await query.limit(1).get();
 
     if (querySnapshot.empty) {
       return null;
     }
 
     const doc = querySnapshot.docs[0];
-    return {
+
+    const model = {
       id: doc.id,
       ...doc.data(),
-      createdAt: doc.data()?.createdAt?.toDate(),
-      updatedAt: doc.data()?.updatedAt?.toDate(),
+      createdAt: doc.data().createdAt?.toDate(),
+      updatedAt: doc.data().updatedAt?.toDate(),
     } as Model;
+
+    return model;
   } catch (error) {
     console.error('Error getting model by appId:', error);
-    throw new Error('Failed to retrieve model');
+    throw new Error('Failed to retrieve model by appId');
   }
 }
 
 export async function getContentByModelId(
-  modelId: string
+  modelRef: string
 ): Promise<ContentItem[]> {
   try {
-    const querySnapshot = await db
+    const query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = db
       .collection(CONTENT_COLLECTION)
-      .where('modelId', '==', modelId)
-      .orderBy('createdAt', 'desc')
-      .get();
+      .where('modelId', '==', modelRef);
+
+    const querySnapshot = await query.orderBy('createdAt', 'desc').get();
 
     return querySnapshot.docs.map((doc) => ({
       id: doc.id,
