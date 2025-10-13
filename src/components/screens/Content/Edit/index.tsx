@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
 import { menuItems } from '@/config/menu';
+import { useSite } from '@/context/SiteContext';
 import { contentService } from '@/lib/content';
 import { modelService } from '@/lib/models';
 import type { User } from '@/types/auth';
@@ -22,18 +23,26 @@ export function EditContent({ user }: EditContentProps) {
     contentId: string;
   }>();
   const navigate = useNavigate();
+  const { currentSite } = useSite();
   const [models, setModels] = useState<Model[]>([]);
   const [contentItem, setContentItem] = useState<ContentItem | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadModelsAndContent();
-  }, []);
+  }, [currentSite]);
 
   const loadModelsAndContent = async () => {
+    if (!currentSite?.id) {
+      setModels([]);
+      setContentItem(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       const [modelsData, item] = await Promise.all([
-        modelService.getAll(),
+        modelService.getBySite(currentSite.id),
         contentService.getById(contentId!),
       ]);
       setModels(modelsData);

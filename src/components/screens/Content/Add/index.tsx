@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
 import { menuItems } from '@/config/menu';
+import { useSite } from '@/context/SiteContext';
 import { contentService } from '@/lib/content';
 import { modelService } from '@/lib/models';
 import type { User } from '@/types/auth';
@@ -18,12 +19,19 @@ interface AddContentProps {
 export function AddContent({ user }: AddContentProps) {
   const { modelId } = useParams<{ modelId: string }>();
   const navigate = useNavigate();
+  const { currentSite } = useSite();
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadModels = async () => {
+    if (!currentSite?.id) {
+      setModels([]);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const modelsData = await modelService.getAll();
+      const modelsData = await modelService.getBySite(currentSite.id);
       setModels(modelsData);
     } catch (error) {
       console.error('Error loading models:', error);
@@ -34,7 +42,7 @@ export function AddContent({ user }: AddContentProps) {
 
   useEffect(() => {
     loadModels();
-  }, []);
+  }, [currentSite]);
 
   const selectedModel = models.find((m) => m.id === modelId) || null;
 

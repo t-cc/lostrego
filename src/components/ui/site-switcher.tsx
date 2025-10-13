@@ -17,6 +17,7 @@ import {
 import { useSite } from '@/context/SiteContext';
 import type { Site } from '@/types/site';
 import { ChevronsUpDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 function DefaultLogo() {
   return (
@@ -43,6 +44,12 @@ function SiteLogo({ site }: { site: Site }) {
 export function SiteSwitcher() {
   const { isMobile } = useSidebar();
   const { sites, currentSite, setCurrentSite, loading, error } = useSite();
+  const navigate = useNavigate();
+
+  const handleSiteChange = (site: Site) => {
+    setCurrentSite(site);
+    navigate('/dashboard');
+  };
 
   React.useEffect(() => {
     // If no current site is selected and we have sites, select the first one
@@ -122,7 +129,7 @@ export function SiteSwitcher() {
             {sites.map((site, index) => (
               <DropdownMenuItem
                 key={site.id || index}
-                onClick={() => setCurrentSite(site)}
+                onClick={() => handleSiteChange(site)}
                 className="gap-2 p-2"
               >
                 <SiteLogo site={site} />

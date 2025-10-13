@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
 import { menuItems } from '@/config/menu';
+import { useSite } from '@/context/SiteContext';
 import { modelService } from '@/lib/models';
 import type { User } from '@/types/auth';
 import type { Model } from '@/types/model';
@@ -13,16 +14,23 @@ interface ModelsProps {
 }
 
 export function ListModels({ user }: ModelsProps) {
+  const { currentSite } = useSite();
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchModels();
-  }, []);
+  }, [currentSite]);
 
   const fetchModels = async () => {
+    if (!currentSite?.id) {
+      setModels([]);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const data = await modelService.getAll();
+      const data = await modelService.getBySite(currentSite.id);
       setModels(data);
     } catch (err) {
       console.error('Error loading models:', err);

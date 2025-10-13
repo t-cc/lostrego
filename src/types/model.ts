@@ -15,6 +15,7 @@ export interface Model {
   name: string;
   description: string;
   appId?: string;
+  site?: string;
   fields?: Field[];
   createdAt?: Date;
   updatedAt?: Date;

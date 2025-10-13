@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
 import { menuItems } from '@/config/menu';
+import { useSite } from '@/context/SiteContext';
 import { modelService } from '@/lib/models';
 import type { User } from '@/types/auth';
 import type { Field, Model } from '@/types/model';
@@ -15,6 +16,7 @@ interface AddModelProps {
 }
 
 export function AddModel({ user }: AddModelProps) {
+  const { currentSite } = useSite();
   const [models, setModels] = useState<Model[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -22,11 +24,16 @@ export function AddModel({ user }: AddModelProps) {
 
   useEffect(() => {
     fetchModels();
-  }, []);
+  }, [currentSite]);
 
   const fetchModels = async () => {
+    if (!currentSite?.id) {
+      setModels([]);
+      return;
+    }
+
     try {
-      const data = await modelService.getAll();
+      const data = await modelService.getBySite(currentSite.id);
       setModels(data);
     } catch (err) {
       console.error('Error loading models:', err);
@@ -44,9 +51,17 @@ export function AddModel({ user }: AddModelProps) {
     appId: string;
     fields: Field[];
   }) => {
+    if (!currentSite?.id) {
+      alert('No site selected');
+      return;
+    }
+
     try {
       setSaving(true);
-      const newModel = await modelService.create(modelData);
+      const newModel = await modelService.create({
+        ...modelData,
+        site: currentSite.id,
+      });
       navigate(`/models/${newModel.id}`);
     } catch (err) {
       console.error('Error creating model:', err);

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { menuItems } from '@/config/menu';
+import { useSite } from '@/context/SiteContext';
 import { modelService } from '@/lib/models';
 import type { User } from '@/types/auth';
 import type { Field, Model } from '@/types/model';
@@ -16,6 +17,7 @@ interface EditModelProps {
 }
 
 export function EditModel({ user }: EditModelProps) {
+  const { currentSite } = useSite();
   const { id } = useParams<{ id: string }>();
   const [model, setModel] = useState<Model | null>(null);
   const [models, setModels] = useState<Model[]>([]);
@@ -27,14 +29,21 @@ export function EditModel({ user }: EditModelProps) {
 
   useEffect(() => {
     fetchData();
-  }, [id]);
+  }, [id, currentSite]);
 
   const fetchData = async () => {
+    if (!currentSite?.id) {
+      setModels([]);
+      setModel(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
       const [modelsData, modelData] = await Promise.all([
-        modelService.getAll(),
+        modelService.getBySite(currentSite.id),
         id ? modelService.getById(id) : Promise.resolve(null),
       ]);
       setModels(modelsData);

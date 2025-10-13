@@ -10,6 +10,7 @@ import {
   orderBy,
   query,
   updateDoc,
+  where,
 } from 'firebase/firestore';
 
 import { db } from './firebase';
@@ -32,6 +33,27 @@ export const modelService = {
       })) as Model[];
     } catch (error) {
       console.error('Error getting models:', error);
+      throw error;
+    }
+  },
+
+  async getBySite(siteId: string): Promise<Model[]> {
+    try {
+      const siteRef = doc(db, 'site', siteId);
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('site', '==', siteRef),
+        orderBy('createdAt', 'desc')
+      );
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate(),
+        updatedAt: doc.data().updatedAt?.toDate(),
+      })) as Model[];
+    } catch (error) {
+      console.error('Error getting models by site:', error);
       throw error;
     }
   },
@@ -61,9 +83,12 @@ export const modelService = {
     try {
       const now = Timestamp.now();
       const docData = {
-        ...model,
+        name: model.name,
+        description: model.description,
+        appId: model.appId,
         createdAt: now,
         updatedAt: now,
+        ...(model.site && { site: doc(db, 'site', model.site) }),
       };
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), docData);
