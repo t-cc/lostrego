@@ -148,17 +148,19 @@ export function ModelForm({
       newFields[fieldIndex],
     ];
 
-    newFields.forEach((field, index) => {
-      field.order = index + 1;
-    });
+    // Update the order property for ALL fields to match their new positions
+    const updatedFields = newFields.map((field, index) => ({
+      ...field,
+      order: index + 1,
+    }));
 
-    // Update local fields first
-    setFields(newFields);
+    // Update local fields
+    setFields(updatedFields);
 
     // Auto-save after reordering
     await onSave({
       ...form.getValues(),
-      fields: newFields,
+      fields: updatedFields,
     });
   };
 
