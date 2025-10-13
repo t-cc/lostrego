@@ -1,4 +1,3 @@
-import LostregoIcon from '@/assets/lostrego.svg?react';
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +13,7 @@ import type { User } from '@/types/auth';
 import type { MenuItem } from '@/types/layout';
 import { Link, useLocation } from 'react-router-dom';
 
+import { SiteSwitcher } from '../ui/site-switcher';
 import { NavUser } from './NavUser';
 
 interface MenuSidebarProps {
@@ -33,21 +33,7 @@ export default function MenuSidebar({ menuItems, user }: MenuSidebarProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <LostregoIcon className="size-6" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Lóstrego</span>
-                  <span className="truncate text-xs">CMS</span>
-                </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <SiteSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

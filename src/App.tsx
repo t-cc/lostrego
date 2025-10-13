@@ -9,6 +9,7 @@ import { Media } from '@/components/screens/Media';
 import { AddModel } from '@/components/screens/Models/Add';
 import { EditModel } from '@/components/screens/Models/Edit';
 import { ListModels } from '@/components/screens/Models/List';
+import { SiteProvider } from '@/context/SiteContext';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { modelService } from '@/lib/models';
 import {
@@ -133,7 +134,9 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppContent />
+        <SiteProvider>
+          <AppContent />
+        </SiteProvider>
       </AuthProvider>
     </BrowserRouter>
   );
