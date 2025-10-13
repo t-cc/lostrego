@@ -21,7 +21,7 @@ export default function UploadArea({
   onDrop,
   onButtonClick,
   onChange,
-  accept = 'image/*,video/*,*/*',
+  accept = '*/*',
 }: UploadAreaProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -51,7 +51,7 @@ export default function UploadArea({
             : 'Drag and drop files or click to select'}
         </p>
         <p className="text-sm text-gray-600">
-          Upload images, videos or other multimedia files
+          Upload images, documents, videos, audio or other files
         </p>
       </div>
       <input
