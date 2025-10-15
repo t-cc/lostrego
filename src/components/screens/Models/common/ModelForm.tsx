@@ -32,6 +32,7 @@ const modelFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string(),
   appId: z.string().min(1, 'API Field Name is required'),
+  previewUrl: z.string().optional(),
 });
 
 type ModelFormData = z.infer<typeof modelFormSchema>;
@@ -67,6 +68,7 @@ export function ModelForm({
       description: initialData?.description || model?.description || '',
       appId:
         initialData?.appId || model?.appId || toCamelCase(model?.name || ''),
+      previewUrl: initialData?.previewUrl || model?.previewUrl || '',
     },
   });
 
@@ -172,6 +174,7 @@ export function ModelForm({
           <TabsList>
             <TabsTrigger value="fields">Fields</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="sidebar">Sidebar</TabsTrigger>
           </TabsList>
 
           <TabsContent value="settings" className="space-y-4">
@@ -224,6 +227,44 @@ export function ModelForm({
                       placeholder="Model description"
                       rows={3}
                       {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-between items-center pt-4">
+              <div>
+                {onDelete && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={onDelete}
+                    disabled={isSaving}
+                  >
+                    Delete Model
+                  </Button>
+                )}
+              </div>
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? 'Saving...' : 'Save'}
+              </Button>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="sidebar" className="space-y-4">
+            <FormField
+              control={form.control}
+              name="previewUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Preview URL</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="https://example.com/preview"
+                      {...field}
+                      onBlur={() => form.handleSubmit(onSubmit)()}
                     />
                   </FormControl>
                   <FormMessage />

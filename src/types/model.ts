@@ -23,6 +23,7 @@ export interface Model {
   name: string;
   description: string;
   appId?: string;
+  previewUrl?: string;
   site?: string;
   fields?: Field[];
   createdAt?: Date;

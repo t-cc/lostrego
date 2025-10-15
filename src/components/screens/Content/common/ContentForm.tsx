@@ -5,6 +5,7 @@ import type { User } from '@/types/auth';
 import type { ContentItem } from '@/types/content';
 import type { Field, Model } from '@/types/model';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Eye } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -197,9 +198,44 @@ export function ContentForm({
 
   return (
     <div className="mx-auto mt-8">
-      <h1 className="text-2xl font-bold mb-4">
-        {initialData ? 'Edit Content' : 'Create New Content'}
-      </h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">
+          {initialData ? 'Edit Content' : 'Create New Content'}
+        </h1>
+        {initialData && model.previewUrl && (
+          <Button
+            type="button"
+            onClick={() => {
+              const formValues = getValues();
+              let previewUrl = model.previewUrl!;
+
+              // Replace variables in curly braces with form values using field appId
+              const variableRegex = /\{([^}]+)\}/g;
+              previewUrl = previewUrl.replace(
+                variableRegex,
+                (match, varName) => {
+                  // Find the field with this appId and get its value
+                  const field = model.fields?.find(
+                    (f) => f.id && f.appId === varName.trim()
+                  );
+                  if (field && field.id) {
+                    const fieldValue = formValues[field.id];
+                    return fieldValue ? String(fieldValue) : match;
+                  }
+                  return match; // Keep the original if no field found
+                }
+              );
+
+              window.open(previewUrl, '_blank');
+            }}
+            variant="outline"
+            size="sm"
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            Preview
+          </Button>
+        )}
+      </div>
       <form onSubmit={handleSubmit(onFormSubmit)}>
         {sortedFields.map((field) => {
           const fieldError = field.id ? errors[field.id] : undefined;
