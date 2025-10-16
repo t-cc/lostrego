@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-
 import { AddContent } from '@/components/screens/Content/Add';
 import { EditContent } from '@/components/screens/Content/Edit';
 import { ContentList } from '@/components/screens/Content/List';
@@ -11,44 +9,7 @@ import { EditModel } from '@/components/screens/Models/Edit';
 import { ListModels } from '@/components/screens/Models/List';
 import { SiteProvider } from '@/context/SiteContext';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
-import { modelService } from '@/lib/models';
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-  useNavigate,
-} from 'react-router-dom';
-
-const ContentRedirect = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const models = await modelService.getAll();
-        if (models.length > 0) {
-          const sorted = [...models].sort((a, b) =>
-            a.name.localeCompare(b.name)
-          );
-          navigate(`/content/${sorted[0].id}`, { replace: true });
-        } else {
-          navigate('/dashboard', { replace: true });
-        }
-      } catch (error) {
-        console.error(error);
-        navigate('/dashboard', { replace: true });
-      }
-    };
-    load();
-  }, [navigate]);
-
-  return (
-    <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-    </div>
-  );
-};
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -100,10 +61,7 @@ function AppContent() {
           user ? <EditModel user={user} /> : <Navigate to="/login" replace />
         }
       />
-      <Route
-        path="/content"
-        element={user ? <ContentRedirect /> : <Navigate to="/login" replace />}
-      />
+
       <Route
         path="/content/:modelId"
         element={

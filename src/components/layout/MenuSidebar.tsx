@@ -9,9 +9,10 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar';
+import { modelService } from '@/lib/models';
 import type { User } from '@/types/auth';
 import type { MenuItem } from '@/types/layout';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { SiteSwitcher } from '../ui/site-switcher';
 import { NavUser } from './NavUser';
@@ -23,9 +24,26 @@ interface MenuSidebarProps {
 
 export default function MenuSidebar({ menuItems, user }: MenuSidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const handleMenuClick = (item: MenuItem) => {
-    if (item.onClick) {
+  const handleMenuClick = async (item: MenuItem) => {
+    if (item.id === 'content') {
+      // Special handling for Content link - fetch models and navigate directly
+      try {
+        const models = await modelService.getAll();
+        if (models.length > 0) {
+          const sorted = [...models].sort((a, b) =>
+            a.name.localeCompare(b.name)
+          );
+          navigate(`/content/${sorted[0].id}`);
+        } else {
+          navigate('/dashboard');
+        }
+      } catch (error) {
+        console.error(error);
+        navigate('/dashboard');
+      }
+    } else if (item.onClick) {
       item.onClick();
     }
   };
@@ -44,7 +62,7 @@ export default function MenuSidebar({ menuItems, user }: MenuSidebarProps) {
                 : false;
               return (
                 <SidebarMenuItem key={item.id}>
-                  {item.href ? (
+                  {item.href && item.id !== 'content' ? (
                     <SidebarMenuButton asChild isActive={isActive}>
                       <Link to={item.href}>
                         <item.icon className="h-4 w-4" />
