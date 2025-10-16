@@ -189,11 +189,13 @@ export function Media({
   };
 
   const content = (
-    <div className="space-y-6 py-2 px-4">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Media</h1>
-        <p className="text-gray-600">Firebase bucket multimedia content.</p>
-      </div>
+    <div className={'space-y-6'}>
+      {!isPopup && (
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Media</h1>
+          <p className="text-gray-600">Firebase bucket multimedia content.</p>
+        </div>
+      )}
 
       {/* Upload Area */}
       <UploadArea
@@ -244,8 +246,8 @@ export function Media({
   if (isPopup) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="!max-w-[50rem] max-h-[80vh] min-h-[80vh] overflow-y-auto flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>Select Media</DialogTitle>
             <DialogDescription>
               Choose an image or media file to use as an asset.
@@ -260,7 +262,7 @@ export function Media({
   const breadcrumbs = [{ label: 'Media' }];
   return (
     <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
-      {content}
+      <div className="py-2 px-4">{content}</div>
     </Layout>
   );
 }

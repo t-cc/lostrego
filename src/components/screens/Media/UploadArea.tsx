@@ -32,7 +32,7 @@ export default function UploadArea({
 
   return (
     <div
-      className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+      className={`border-2 border-dashed rounded-lg p-4 flex items-center gap-4 cursor-pointer transition-colors ${
         dragActive
           ? 'border-blue-500 bg-blue-50'
           : 'border-gray-300 hover:border-gray-400'
@@ -43,9 +43,9 @@ export default function UploadArea({
       onDrop={onDrop}
       onClick={handleButtonClick}
     >
-      <UploadIcon className="mx-auto h-12 w-12 text-gray-400" />
-      <div className="mt-4">
-        <p className="text-lg font-semibold text-gray-900">
+      <UploadIcon className="h-8 w-8 text-gray-400 flex-shrink-0" />
+      <div>
+        <p className="text-base font-semibold text-gray-900">
           {dragActive
             ? 'Drop files here'
             : 'Drag and drop files or click to select'}
