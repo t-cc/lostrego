@@ -144,7 +144,12 @@ export async function getContentByModelId(
   modelRef: string,
   page: number = 1,
   pageSize: number = 20
-): Promise<{ items: ContentItem[]; hasNext: boolean }> {
+): Promise<{
+  items: ContentItem[];
+  hasNext: boolean;
+  nextCursor?: string;
+  totalItems?: number;
+}> {
   try {
     const baseQuery: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> =
       db
@@ -175,9 +180,84 @@ export async function getContentByModelId(
       updatedAt: doc.data().updatedAt?.toDate(),
     })) as ContentItem[];
 
-    return { items, hasNext };
+    // For backward compatibility, return empty cursor and totalItems
+    return {
+      items,
+      hasNext,
+      nextCursor: hasNext ? pageDocs[pageDocs.length - 1].id : undefined,
+      totalItems: undefined, // Not available in offset-based pagination
+    };
   } catch (error) {
     console.error('Error getting content by model ID:', error);
+    throw new Error('Failed to retrieve content');
+  }
+}
+
+export async function getContentByModelIdCursor(
+  modelRef: string,
+  cursor: string | null,
+  pageSize: number = 20
+): Promise<{
+  items: ContentItem[];
+  hasNext: boolean;
+  nextCursor?: string;
+  totalItems?: number;
+}> {
+  try {
+    const safePageSize = Math.min(Math.max(1, pageSize), 100);
+
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = db
+      .collection(CONTENT_COLLECTION)
+      .where('modelId', '==', modelRef)
+      .orderBy('createdAt', 'desc')
+      .limit(safePageSize + 1); // +1 to check if there's more
+
+    // If cursor is provided, start after the cursor document
+    if (cursor) {
+      const cursorDoc = await db
+        .collection(CONTENT_COLLECTION)
+        .doc(cursor)
+        .get();
+      if (cursorDoc.exists) {
+        query = query.startAfter(cursorDoc);
+      }
+    }
+
+    const querySnapshot = await query.get();
+    const docs = querySnapshot.docs;
+    const hasNext = docs.length > safePageSize;
+
+    // Return only the requested number of items
+    const itemsToReturn = hasNext ? docs.slice(0, safePageSize) : docs;
+
+    const items = itemsToReturn.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate(),
+      updatedAt: doc.data().updatedAt?.toDate(),
+    })) as ContentItem[];
+
+    // Get total count for the first page only (optimization)
+    let totalItems: number | undefined;
+    if (!cursor) {
+      const countQuery = await db
+        .collection(CONTENT_COLLECTION)
+        .where('modelId', '==', modelRef)
+        .count()
+        .get();
+      totalItems = countQuery.data().count;
+    }
+
+    return {
+      items,
+      hasNext,
+      nextCursor: hasNext
+        ? itemsToReturn[itemsToReturn.length - 1].id
+        : undefined,
+      totalItems,
+    };
+  } catch (error) {
+    console.error('Error getting content by model ID with cursor:', error);
     throw new Error('Failed to retrieve content');
   }
 }

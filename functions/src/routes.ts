@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import {
   ContentItem,
   getContentByModelId,
+  getContentByModelIdCursor,
   getModelByAppId,
   getModels,
 } from './services/contentService';
@@ -35,6 +36,9 @@ app.get('/:siteAppId/content/:modelId', async (c) => {
     const modelAppId = c.req.param('modelId');
     const pageRaw = c.req.query('page');
     const pageSizeRaw = c.req.query('pageSize');
+    const cursor = c.req.query('cursor');
+
+    // Validate and parse parameters
     const page = pageRaw ? Math.max(1, Math.floor(Number(pageRaw))) : 1;
     const pageSize = pageSizeRaw
       ? Math.max(1, Math.min(100, Math.floor(Number(pageSizeRaw))))
@@ -54,16 +58,34 @@ app.get('/:siteAppId/content/:modelId', async (c) => {
       return c.json({ error: 'Model document ID is missing' }, 500);
     }
 
-    // Get paginated content by model document id
-    const { items, hasNext } = await getContentByModelId(
-      model.id,
-      page,
-      pageSize
-    );
+    // Precompute field mapping for efficient transformation
+    const fieldMapping = new Map<string, string>();
+    if (model.fields) {
+      model.fields.forEach((field) => {
+        if (field.id) {
+          fieldMapping.set(field.id, field.appId);
+        }
+      });
+    }
 
-    // Transform content data: map field.id keys to field.appId keys
+    let paginatedResult;
+
+    // Use cursor-based pagination when available for better performance
+    if (cursor) {
+      paginatedResult = await getContentByModelIdCursor(
+        model.id,
+        cursor,
+        pageSize
+      );
+    } else {
+      paginatedResult = await getContentByModelId(model.id, page, pageSize);
+    }
+
+    const { items, hasNext, nextCursor, totalItems } = paginatedResult;
+
+    // Optimized data transformation using precomputed mapping
     const transformedContent = items.map((item: ContentItem) => {
-      if (!model.fields) {
+      if (fieldMapping.size === 0) {
         return item;
       }
 
@@ -73,11 +95,11 @@ app.get('/:siteAppId/content/:modelId', async (c) => {
       > = {};
       const originalData = item.data || {};
 
-      model.fields.forEach((field) => {
-        const fieldId = field.id;
-        if (fieldId && originalData[fieldId] !== undefined) {
-          // Map from field.id to field.appId
-          transformedData[field.appId] = originalData[fieldId];
+      // Only iterate over existing data keys, not all model fields
+      Object.keys(originalData).forEach((fieldId) => {
+        const appId = fieldMapping.get(fieldId);
+        if (appId && originalData[fieldId] !== undefined) {
+          transformedData[appId] = originalData[fieldId];
         }
       });
 
@@ -89,9 +111,11 @@ app.get('/:siteAppId/content/:modelId', async (c) => {
 
     return c.json({
       items: transformedContent,
-      page,
+      page: cursor ? undefined : page, // Don't include page for cursor-based
       pageSize,
       hasNext,
+      nextCursor: hasNext ? nextCursor : undefined,
+      totalItems,
     });
   } catch (error) {
     console.error('Error fetching content:', error);
