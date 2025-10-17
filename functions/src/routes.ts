@@ -4,6 +4,7 @@ import {
   ContentItem,
   getContentByModelId,
   getContentByModelIdCursor,
+  getContentItemById,
   getModelByAppId,
   getModels,
 } from './services/contentService';
@@ -120,6 +121,74 @@ app.get('/:siteAppId/content/:modelId', async (c) => {
   } catch (error) {
     console.error('Error fetching content:', error);
     return c.json({ error: 'Failed to fetch content' }, 500);
+  }
+});
+
+// GET /api/:siteAppId/content/:modelId/:contentId - Get specific content item by ID
+app.get('/:siteAppId/content/:modelId/:contentId', async (c) => {
+  try {
+    const siteAppId = c.req.param('siteAppId');
+    const modelAppId = c.req.param('modelId');
+    const contentId = c.req.param('contentId');
+
+    if (!siteAppId || !modelAppId || !contentId) {
+      return c.json(
+        { error: 'Site appId, Model appId, and Content ID are required' },
+        400
+      );
+    }
+
+    // Find model by appId and siteAppId to validate the model exists in this site
+    const model = await getModelByAppId(modelAppId, siteAppId);
+    if (!model) {
+      return c.json({ error: 'Model not found in this site' }, 404);
+    }
+
+    // Get the content item by ID
+    const contentItem = await getContentItemById(contentId);
+    if (!contentItem) {
+      return c.json({ error: 'Content item not found' }, 404);
+    }
+
+    // Verify that the content item belongs to the correct model
+    if (contentItem.modelId !== model.id) {
+      return c.json(
+        { error: 'Content item does not belong to this model' },
+        404
+      );
+    }
+
+    // Precompute field mapping for efficient transformation
+    const fieldMapping = new Map<string, string>();
+    if (model.fields) {
+      model.fields.forEach((field) => {
+        if (field.id) {
+          fieldMapping.set(field.id, field.appId);
+        }
+      });
+    }
+
+    // Transform field IDs to appIds if field mapping exists
+    let transformedData = contentItem.data;
+    if (fieldMapping.size > 0) {
+      transformedData = {};
+      const originalData = contentItem.data || {};
+
+      Object.keys(originalData).forEach((fieldId) => {
+        const appId = fieldMapping.get(fieldId);
+        if (appId && originalData[fieldId] !== undefined) {
+          transformedData[appId] = originalData[fieldId];
+        }
+      });
+    }
+
+    return c.json({
+      ...contentItem,
+      data: transformedData,
+    });
+  } catch (error) {
+    console.error('Error fetching content item:', error);
+    return c.json({ error: 'Failed to fetch content item' }, 500);
   }
 });
 
