@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
 import { menuItems } from '@/config/menu';
@@ -23,7 +23,7 @@ export function AddContent({ user }: AddContentProps) {
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadModels = async () => {
+  const loadModels = useCallback(async () => {
     if (!currentSite?.id) {
       setModels([]);
       setLoading(false);
@@ -38,11 +38,11 @@ export function AddContent({ user }: AddContentProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentSite?.id]);
 
   useEffect(() => {
     loadModels();
-  }, [currentSite]);
+  }, [loadModels]);
 
   const selectedModel = models.find((m) => m.id === modelId) || null;
 

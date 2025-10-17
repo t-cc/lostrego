@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
 import { menuItems } from '@/config/menu';
@@ -22,11 +22,7 @@ export function AddModel({ user }: AddModelProps) {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchModels();
-  }, [currentSite]);
-
-  const fetchModels = async () => {
+  const fetchModels = useCallback(async () => {
     if (!currentSite?.id) {
       setModels([]);
       return;
@@ -38,7 +34,11 @@ export function AddModel({ user }: AddModelProps) {
     } catch (err) {
       console.error('Error loading models:', err);
     }
-  };
+  }, [currentSite?.id]);
+
+  useEffect(() => {
+    fetchModels();
+  }, [fetchModels]);
 
   const breadcrumbs = [
     { label: 'Models', href: '/models' },

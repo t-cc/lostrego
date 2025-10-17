@@ -114,6 +114,8 @@
           "deps",
           "docs",
           "ci",
+          "react",
+          "hooks",
           "*"
         ]
       ],

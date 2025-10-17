@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -27,11 +27,7 @@ export function EditModel({ user }: EditModelProps) {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchData();
-  }, [id, currentSite]);
-
-  const fetchData = async () => {
+  const loadModelsAndContent = useCallback(async () => {
     if (!currentSite?.id) {
       setModels([]);
       setModel(null);
@@ -53,7 +49,11 @@ export function EditModel({ user }: EditModelProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, currentSite]);
+
+  useEffect(() => {
+    loadModelsAndContent();
+  }, [loadModelsAndContent]);
 
   const handleSave = async (modelData: {
     name: string;

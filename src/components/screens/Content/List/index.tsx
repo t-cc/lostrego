@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
 import { menuItems } from '@/config/menu';
@@ -25,9 +25,26 @@ export function ContentList({ user }: ContentProps) {
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const loadModels = useCallback(async () => {
+    if (!currentSite?.id) {
+      setModels([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const modelsData = await modelService.getBySite(currentSite.id);
+      setModels(modelsData);
+    } catch (error) {
+      console.error('Error loading models:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentSite?.id]);
+
   useEffect(() => {
     loadModels();
-  }, [currentSite]);
+  }, [loadModels]);
 
   useEffect(() => {
     if (models.length > 0 && modelId) {
@@ -44,23 +61,6 @@ export function ContentList({ user }: ContentProps) {
       navigate(`/content/${sorted[0].id}`, { replace: true });
     }
   }, [models, modelId, navigate]);
-
-  const loadModels = async () => {
-    if (!currentSite?.id) {
-      setModels([]);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const modelsData = await modelService.getBySite(currentSite.id);
-      setModels(modelsData);
-    } catch (error) {
-      console.error('Error loading models:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const loadContent = async (modelId: string) => {
     try {

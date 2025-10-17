@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
 import { menuItems } from '@/config/menu';
@@ -18,11 +18,7 @@ export function ListModels({ user }: ModelsProps) {
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchModels();
-  }, [currentSite]);
-
-  const fetchModels = async () => {
+  const fetchModels = useCallback(async () => {
     if (!currentSite?.id) {
       setModels([]);
       setLoading(false);
@@ -37,7 +33,11 @@ export function ListModels({ user }: ModelsProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentSite?.id]);
+
+  useEffect(() => {
+    fetchModels();
+  }, [fetchModels]);
 
   const breadcrumbs = [{ label: 'Models' }];
 
