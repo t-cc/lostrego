@@ -1,10 +1,14 @@
+import React from 'react';
+import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { ContentImage } from '@/components/ui/content-image';
 import { DataTable } from '@/components/ui/data-table';
+import { Input } from '@/components/ui/input';
 import type { ContentItem } from '@/types/content';
 import type { Field, Model } from '@/types/model';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, CheckCircle, XCircle } from 'lucide-react';
 
 interface ContentListProps {
   selectedModel: Model | null;
@@ -19,6 +23,7 @@ export function ContentTable({
   onAddNew,
   onEdit,
 }: ContentListProps) {
+  const [searchQuery, setSearchQuery] = useState('');
   if (!selectedModel) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -47,7 +52,15 @@ export function ContentTable({
       } else if (Array.isArray(value)) {
         return value.filter(Boolean).join(', ');
       } else if (typeof value === 'boolean') {
-        return value ? 'True' : 'False';
+        return value ? (
+          <div className="flex justify-end">
+            <CheckCircle className="w-5 h-5 text-green-500" />
+          </div>
+        ) : (
+          <div className="flex justify-end">
+            <XCircle className="w-5 h-5 text-red-500" />
+          </div>
+        );
       } else {
         return String(value || '');
       }
@@ -68,7 +81,15 @@ export function ContentTable({
     } else if (Array.isArray(value)) {
       return value.filter(Boolean).join(', ');
     } else if (typeof value === 'boolean') {
-      return value ? 'True' : 'False';
+      return value ? (
+        <div className="flex justify-end">
+          <CheckCircle className="w-5 h-5 text-green-500" />
+        </div>
+      ) : (
+        <div className="flex justify-end">
+          <XCircle className="w-5 h-5 text-red-500" />
+        </div>
+      );
     } else if (field.type === 'number') {
       return value === undefined ? '' : String(value);
     } else {
@@ -134,7 +155,9 @@ export function ContentTable({
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            Title
+            <div className="truncate max-w-[100px]" title="Title">
+              Title
+            </div>
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
@@ -156,7 +179,9 @@ export function ContentTable({
                   column.toggleSorting(column.getIsSorted() === 'asc')
                 }
               >
-                {field.name}
+                <div className="truncate max-w-[100px]" title={field.name}>
+                  {field.name}
+                </div>
                 <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             );
@@ -173,7 +198,9 @@ export function ContentTable({
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            Created
+            <div className="truncate max-w-[100px]" title="Created">
+              Created
+            </div>
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
@@ -184,19 +211,37 @@ export function ContentTable({
     },
   ];
 
+  const filteredContentItems = contentItems.filter((item) => {
+    const displayValue = getDisplayValue(item, selectedModel);
+    const valueString =
+      typeof displayValue === 'string'
+        ? displayValue
+        : React.isValidElement(displayValue)
+          ? 'media' // Or handle appropriately if needed
+          : String(displayValue);
+    return valueString.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
   return (
     <div>
-      <div className="flex items-center mb-8">
-        <div className=" mr-auto ">
-          <h2 className="text-2xl font-bold mb-4">{selectedModel.name}</h2>
-          {selectedModel.description ? (
-            <p className="text-gray-600 mb-6">{selectedModel.description}</p>
-          ) : null}
-        </div>
+      <div className="flex items-center mb-8 gap-4">
+        <h2 className="text-2xl font-bold mb-4 mr-auto">
+          {selectedModel.name}
+        </h2>
+        <Input
+          placeholder="Search content..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="max-w-[300px]"
+        />
         <Button onClick={onAddNew}>Add New</Button>
       </div>
       {/* Content Items List */}
-      <DataTable columns={columns} data={contentItems} onRowClick={onEdit} />
+      <DataTable
+        columns={columns}
+        data={filteredContentItems}
+        onRowClick={onEdit}
+      />
     </div>
   );
 }
