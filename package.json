@@ -96,7 +96,41 @@
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
-    ]
+    ],
+    "rules": {
+      "scope-enum": [
+        2,
+        "always",
+        [
+          "ui",
+          "auth",
+          "content",
+          "models",
+          "media",
+          "layout",
+          "functions",
+          "config",
+          "types",
+          "deps",
+          "docs",
+          "ci",
+          "*"
+        ]
+      ],
+      "scope-case": [
+        2,
+        "always",
+        "lower-case"
+      ],
+      "scope-empty": [
+        2,
+        "never"
+      ],
+      "subject-empty": [
+        2,
+        "never"
+      ]
+    }
   },
   "pnpm": {
     "overrides": {
