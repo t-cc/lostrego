@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { menuItems } from '@/config/menu';
-import { useSite } from '@/context/SiteContext';
+import { useModels as useModelsHook } from '@/hooks/useModels';
 import { modelService } from '@/lib/models';
 import type { User } from '@/types/auth';
 import type { Field, Model } from '@/types/model';
@@ -17,43 +17,39 @@ interface EditModelProps {
 }
 
 export function EditModel({ user }: EditModelProps) {
-  const { currentSite } = useSite();
   const { id } = useParams<{ id: string }>();
+  const { models: allModels, loading: modelsLoading } = useModelsHook();
   const [model, setModel] = useState<Model | null>(null);
-  const [models, setModels] = useState<Model[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [modelLoading, setModelLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const navigate = useNavigate();
 
-  const loadModelsAndContent = useCallback(async () => {
-    if (!currentSite?.id) {
-      setModels([]);
+  const loadModel = useCallback(async () => {
+    if (!id) {
       setModel(null);
-      setLoading(false);
+      setModelLoading(false);
       return;
     }
 
     try {
-      setLoading(true);
+      setModelLoading(true);
       setError(null);
-      const [modelsData, modelData] = await Promise.all([
-        modelService.getBySite(currentSite.id),
-        id ? modelService.getById(id) : Promise.resolve(null),
-      ]);
-      setModels(modelsData);
+      const modelData = await modelService.getById(id);
       setModel(modelData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load model');
     } finally {
-      setLoading(false);
+      setModelLoading(false);
     }
-  }, [id, currentSite]);
+  }, [id]);
 
   useEffect(() => {
-    loadModelsAndContent();
-  }, [loadModelsAndContent]);
+    loadModel();
+  }, [loadModel]);
+
+  const loading = modelsLoading || modelLoading;
 
   const handleSave = async (modelData: {
     name: string;
@@ -131,7 +127,7 @@ export function EditModel({ user }: EditModelProps) {
 
   return (
     <Layout menuItems={menuItems} user={user} breadcrumbs={breadcrumbs}>
-      <ModelsLayout models={models}>
+      <ModelsLayout models={allModels}>
         <div className="space-y-6 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">

@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
 import { menuItems } from '@/config/menu';
 import { useSite } from '@/context/SiteContext';
+import { useModels } from '@/hooks/useModels';
 import { modelService } from '@/lib/models';
 import type { User } from '@/types/auth';
-import type { Field, Model } from '@/types/model';
+import type { Field } from '@/types/model';
 import { useNavigate } from 'react-router-dom';
 
 import { ModelForm } from '../common/ModelForm';
@@ -17,28 +18,10 @@ interface AddModelProps {
 
 export function AddModel({ user }: AddModelProps) {
   const { currentSite } = useSite();
-  const [models, setModels] = useState<Model[]>([]);
+  const { models } = useModels();
   const [saving, setSaving] = useState(false);
 
   const navigate = useNavigate();
-
-  const fetchModels = useCallback(async () => {
-    if (!currentSite?.id) {
-      setModels([]);
-      return;
-    }
-
-    try {
-      const data = await modelService.getBySite(currentSite.id);
-      setModels(data);
-    } catch (err) {
-      console.error('Error loading models:', err);
-    }
-  }, [currentSite?.id]);
-
-  useEffect(() => {
-    fetchModels();
-  }, [fetchModels]);
 
   const breadcrumbs = [
     { label: 'Models', href: '/models' },

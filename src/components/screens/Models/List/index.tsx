@@ -1,11 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
-
 import Layout from '@/components/layout/Layout';
 import { menuItems } from '@/config/menu';
-import { useSite } from '@/context/SiteContext';
-import { modelService } from '@/lib/models';
+import { useModels } from '@/hooks/useModels';
 import type { User } from '@/types/auth';
-import type { Model } from '@/types/model';
 
 import { ModelsLayout } from '../common/ModelsLayout';
 
@@ -14,30 +10,7 @@ interface ModelsProps {
 }
 
 export function ListModels({ user }: ModelsProps) {
-  const { currentSite } = useSite();
-  const [models, setModels] = useState<Model[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchModels = useCallback(async () => {
-    if (!currentSite?.id) {
-      setModels([]);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const data = await modelService.getBySite(currentSite.id);
-      setModels(data);
-    } catch (err) {
-      console.error('Error loading models:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentSite?.id]);
-
-  useEffect(() => {
-    fetchModels();
-  }, [fetchModels]);
+  const { models, loading } = useModels();
 
   const breadcrumbs = [{ label: 'Models' }];
 

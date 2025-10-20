@@ -1,12 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
-
 import Layout from '@/components/layout/Layout';
 import { menuItems } from '@/config/menu';
-import { useSite } from '@/context/SiteContext';
+import { useModels } from '@/hooks/useModels';
 import { contentService } from '@/lib/content';
-import { modelService } from '@/lib/models';
 import type { User } from '@/types/auth';
-import type { Model } from '@/types/model';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ContentForm } from '../common/ContentForm';
@@ -19,30 +15,7 @@ interface AddContentProps {
 export function AddContent({ user }: AddContentProps) {
   const { modelId } = useParams<{ modelId: string }>();
   const navigate = useNavigate();
-  const { currentSite } = useSite();
-  const [models, setModels] = useState<Model[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const loadModels = useCallback(async () => {
-    if (!currentSite?.id) {
-      setModels([]);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const modelsData = await modelService.getBySite(currentSite.id);
-      setModels(modelsData);
-    } catch (error) {
-      console.error('Error loading models:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentSite?.id]);
-
-  useEffect(() => {
-    loadModels();
-  }, [loadModels]);
+  const { models, loading } = useModels();
 
   const selectedModel = models.find((m) => m.id === modelId) || null;
 

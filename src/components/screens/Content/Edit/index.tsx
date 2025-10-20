@@ -2,12 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
 import { menuItems } from '@/config/menu';
-import { useSite } from '@/context/SiteContext';
+import { useModels } from '@/hooks/useModels';
 import { contentService } from '@/lib/content';
-import { modelService } from '@/lib/models';
 import type { User } from '@/types/auth';
 import type { ContentItem } from '@/types/content';
-import type { Model } from '@/types/model';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ContentForm } from '../common/ContentForm';
@@ -23,36 +21,27 @@ export function EditContent({ user }: EditContentProps) {
     contentId: string;
   }>();
   const navigate = useNavigate();
-  const { currentSite } = useSite();
-  const [models, setModels] = useState<Model[]>([]);
+  const { models, loading: modelsLoading } = useModels();
   const [contentItem, setContentItem] = useState<ContentItem | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [contentLoading, setContentLoading] = useState(true);
 
-  const loadModelsAndContent = useCallback(async () => {
-    if (!currentSite?.id) {
-      setModels([]);
-      setContentItem(null);
-      setLoading(false);
-      return;
-    }
-
+  const loadContent = useCallback(async () => {
     try {
-      const [modelsData, item] = await Promise.all([
-        modelService.getBySite(currentSite.id),
-        contentService.getById(contentId!),
-      ]);
-      setModels(modelsData);
+      const item = await contentService.getById(contentId!);
       setContentItem(item);
     } catch (error) {
-      console.error('Error loading models or content:', error);
+      console.error('Error loading content:', error);
+      setContentItem(null);
     } finally {
-      setLoading(false);
+      setContentLoading(false);
     }
-  }, [currentSite?.id, contentId]);
+  }, [contentId]);
 
   useEffect(() => {
-    loadModelsAndContent();
-  }, [loadModelsAndContent]);
+    loadContent();
+  }, [loadContent]);
+
+  const loading = modelsLoading || contentLoading;
 
   const selectedModel = models.find((m) => m.id === modelId) || null;
 
