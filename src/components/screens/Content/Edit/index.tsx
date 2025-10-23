@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { menuItems } from '@/config/menu';
 import { useModels } from '@/hooks/useModels';
 import { contentService } from '@/lib/content';
@@ -24,6 +34,7 @@ export function EditContent({ user }: EditContentProps) {
   const { models, loading: modelsLoading } = useModels();
   const [contentItem, setContentItem] = useState<ContentItem | null>(null);
   const [contentLoading, setContentLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const loadContent = useCallback(async () => {
     try {
@@ -62,11 +73,13 @@ export function EditContent({ user }: EditContentProps) {
     if (modelId) navigate(`/content/${modelId}`);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setDeleteDialogOpen(false);
     if (!contentItem) return;
-
-    if (!confirm('Are you sure you want to delete this content item?')) return;
-
     try {
       await contentService.delete(contentItem.id!);
       navigate(`/content/${modelId}`);
@@ -104,6 +117,23 @@ export function EditContent({ user }: EditContentProps) {
             initialData={contentItem}
           />
         )}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Content</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this content item? This action
+                cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmDelete}>
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </ContentLayout>
     </Layout>
   );

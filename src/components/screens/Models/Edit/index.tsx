@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import Layout from '@/components/layout/Layout';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { menuItems } from '@/config/menu';
 import { useModels as useModelsHook } from '@/hooks/useModels';
@@ -23,6 +33,7 @@ export function EditModel({ user }: EditModelProps) {
   const [modelLoading, setModelLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -71,21 +82,18 @@ export function EditModel({ user }: EditModelProps) {
     }
   };
 
-  const handleDelete = async () => {
-    if (!model) return;
+  const handleDelete = () => {
+    setDeleteDialogOpen(true);
+  };
 
-    if (
-      confirm(
-        `Are you sure you want to delete the model "${model.name}"? This action cannot be undone.`
-      )
-    ) {
-      try {
-        await modelService.delete(model.id!);
-        navigate('/models');
-      } catch (err) {
-        console.error('Error deleting model:', err);
-        alert('Error deleting model');
-      }
+  const handleConfirmDelete = async () => {
+    setDeleteDialogOpen(false);
+    if (!model) return;
+    try {
+      await modelService.delete(model.id!);
+      navigate('/models');
+    } catch (err) {
+      console.error('Error deleting model:', err);
     }
   };
 
@@ -144,6 +152,24 @@ export function EditModel({ user }: EditModelProps) {
             isSaving={saving}
           />
         </div>
+
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Model</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete the model "{model?.name}"? This
+                action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmDelete}>
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </ModelsLayout>
     </Layout>
   );
