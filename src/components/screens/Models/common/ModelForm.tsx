@@ -74,13 +74,14 @@ export function ModelForm({
     },
   });
 
+  const nameValue = form.watch('name');
+
   // Auto-generate appId from name for new models
   useEffect(() => {
-    const name = form.watch('name');
-    if (name && !model && form.watch('appId') === '') {
-      form.setValue('appId', toCamelCase(name));
+    if (nameValue && !model && !initialData?.appId) {
+      form.setValue('appId', toCamelCase(nameValue));
     }
-  }, [form.watch('name'), form, model]);
+  }, [nameValue, initialData, form, model]);
 
   const handleRegenerateAppId = () => {
     const name = form.getValues('name');

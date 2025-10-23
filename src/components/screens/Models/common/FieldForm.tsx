@@ -78,19 +78,17 @@ export function FieldForm({
     },
   });
 
+  const nameValue = form.watch('name');
+
   // Auto-generate appId from name for new fields
   useEffect(() => {
-    const name = form.watch('name');
-    const appId = form.watch('appId');
-
-    if (name && !field && !appId) {
-      form.setValue('appId', toCamelCase(name));
+    if (nameValue && !field?.appId) {
+      form.setValue('appId', toCamelCase(nameValue));
     }
-  }, [form, field]);
+  }, [form, field, nameValue]);
 
   const handleRegenerateAppId = () => {
-    const name = form.getValues('name');
-    form.setValue('appId', toCamelCase(name));
+    form.setValue('appId', toCamelCase(nameValue));
   };
 
   const onSubmit = (data: FieldFormData) => {
