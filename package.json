@@ -105,6 +105,7 @@
         [
           "ui",
           "auth",
+          "logic",
           "content",
           "models",
           "media",

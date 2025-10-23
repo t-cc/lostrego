@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { menuItems } from '@/config/menu';
 import { useModels as useModelsHook } from '@/hooks/useModels';
+import { contentService } from '@/lib/content';
 import { modelService } from '@/lib/models';
 import type { User } from '@/types/auth';
 import type { Field, Model } from '@/types/model';
@@ -34,6 +35,8 @@ export function EditModel({ user }: EditModelProps) {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingModel, setDeletingModel] = useState(false);
+  const [hasContents, setHasContents] = useState<boolean | null>(null);
 
   const navigate = useNavigate();
 
@@ -82,8 +85,21 @@ export function EditModel({ user }: EditModelProps) {
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    if (!model) return;
+
     setDeleteDialogOpen(true);
+
+    try {
+      setDeletingModel(true);
+      const contents = await contentService.getByModelId(model.id!);
+      setHasContents(contents.length > 0);
+    } catch (err) {
+      console.error('Error checking contents for deletion:', err);
+      setHasContents(false); // Default to allowing deletion if check fails
+    } finally {
+      setDeletingModel(false);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -94,6 +110,13 @@ export function EditModel({ user }: EditModelProps) {
       navigate('/models');
     } catch (err) {
       console.error('Error deleting model:', err);
+    }
+  };
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setDeleteDialogOpen(open);
+    if (!open) {
+      setHasContents(null); // Reset state when dialog closes
     }
   };
 
@@ -150,22 +173,32 @@ export function EditModel({ user }: EditModelProps) {
             onCancel={() => navigate('/models')}
             onDelete={handleDelete}
             isSaving={saving}
+            isDeleting={deletingModel}
           />
         </div>
 
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialog
+          open={deleteDialogOpen}
+          onOpenChange={handleDialogOpenChange}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Model</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete the model "{model?.name}"? This
-                action cannot be undone.
+                {hasContents === null
+                  ? 'Checking for associated content...'
+                  : hasContents
+                    ? `Cannot delete model "${model?.name}" because it contains content. Please delete all content first.`
+                    : `Are you sure you want to delete the model "${model?.name}"? This action cannot be undone.`}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleConfirmDelete}>
-                Delete
+              <AlertDialogAction
+                onClick={handleConfirmDelete}
+                disabled={hasContents || deletingModel}
+              >
+                {hasContents ? 'Delete Content First' : 'Delete'}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

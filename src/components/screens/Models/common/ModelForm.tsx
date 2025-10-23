@@ -44,6 +44,7 @@ interface ModelFormProps {
   onCancel: () => void;
   onDelete?: () => void;
   isSaving: boolean;
+  isDeleting?: boolean;
 }
 
 export function ModelForm({
@@ -53,6 +54,7 @@ export function ModelForm({
   onCancel,
   onDelete,
   isSaving,
+  isDeleting,
 }: ModelFormProps) {
   const [fields, setFields] = useState<Field[]>(model?.fields || []);
 
@@ -241,9 +243,9 @@ export function ModelForm({
                     type="button"
                     variant="destructive"
                     onClick={onDelete}
-                    disabled={isSaving}
+                    disabled={isSaving || isDeleting}
                   >
-                    Delete Model
+                    {isDeleting ? 'Checking...' : 'Delete Model'}
                   </Button>
                 )}
               </div>
@@ -279,9 +281,9 @@ export function ModelForm({
                     type="button"
                     variant="destructive"
                     onClick={onDelete}
-                    disabled={isSaving}
+                    disabled={isSaving || isDeleting}
                   >
-                    Delete Model
+                    {isDeleting ? 'Checking...' : 'Delete Model'}
                   </Button>
                 )}
               </div>
