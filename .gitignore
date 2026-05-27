@@ -18,6 +18,7 @@ private
 .vscode/*
 !.vscode/extensions.json
 .idea
+.cline
 .DS_Store
 *.suo
 *.ntvs*
