@@ -17,6 +17,38 @@ El admin web permite a un usuario:
 Una API REST pública (Firebase Functions + Hono) expone modelos y contenidos
 hacia consumidores externos (front sites, apps).
 
+## Estructura del repositorio
+
+Es un **monorepo pnpm workspaces** (ver [ADR 0006](docs/adr/0006-monorepo-pnpm-workspaces.md)):
+
+```
+lostrego/
+├── apps/
+│   ├── web/          ← SPA React + Vite — @lostrego/web
+│   └── functions/    ← Firebase Functions + Hono — @lostrego/functions
+├── packages/
+│   └── shared/       ← tipos compartidos (Field, Model, ContentItem…) — @lostrego/shared
+├── docs/             ← documentación viva
+├── work/             ← backlog + tareas en curso
+├── package.json      ← workspace root + dev tools comunes
+├── pnpm-workspace.yaml
+├── tsconfig.base.json
+└── firebase.json     ← apunta a apps/web/dist y apps/functions
+```
+
+Scripts útiles desde la raíz:
+
+```bash
+pnpm dev                 # arranca el frontend (apps/web)
+pnpm build               # builda todo (-r en orden de deps)
+pnpm build:shared        # solo @lostrego/shared
+pnpm build:web           # solo @lostrego/web
+pnpm build:functions     # solo @lostrego/functions
+pnpm deploy              # firebase deploy (necesita pnpm build antes)
+```
+
+Para apuntar a un workspace concreto: `pnpm --filter @lostrego/<name> <cmd>`.
+
 ## Lectura obligatoria antes de cualquier tarea
 
 1. [docs/product/vision.md](docs/product/vision.md) — qué es el producto y para quién.
@@ -57,7 +89,9 @@ hacia consumidores externos (front sites, apps).
 
 ### Stack y herramientas
 
-- **Package manager:** `pnpm` siempre. Nunca `npm` ni `yarn`. (Excepción legacy: `functions/`.)
+- **Package manager:** `pnpm` siempre, en todo el monorepo. Nunca `npm` ni `yarn`.
+- **Workspaces:** cualquier paquete nuevo se declara en `pnpm-workspace.yaml` (hoy `apps/*` y `packages/*`).
+- **Tipos de dominio:** viven en `@lostrego/shared`. Si añades un tipo que ambas apps consumen, va ahí (no lo dupliques).
 - **TypeScript** en todo. `interface` > `type` para shapes públicos. Sin `enum` — usa uniones de string o `as const` maps.
 - **React:** componentes funcionales con **named exports**, `function NameComponent()`. Sin `React.FC`.
 - **Hooks:** prefijo `use*`, devuelven `{ data, loading, error, refetch }` salvo razón fuerte.
@@ -91,7 +125,7 @@ Ver [`docs/engineering/conventions.md`](docs/engineering/conventions.md) para la
 - **No borres comentarios o código comentado** del usuario sin verificar que está realmente obsoleto.
 - **No cambies el formato del código existente** salvo que sea necesario para la nueva funcionalidad.
 - **No introduzcas librería de i18n** sin un ADR — la decisión actual es UI en castellano sin librería.
-- **No conviertas el repo en monorepo** sin un ADR aprobado.
+- **No dupliques tipos de dominio** entre apps. Va a `@lostrego/shared`.
 - **No añadas tests "por completitud":** coordina con `docs/engineering/testing.md`.
 - **No expongas más endpoints en Functions sin auth** — la API actual es pública por diseño legacy, está pendiente endurecerla (ver backlog P0).
 - **No borres comentarios `// @ts-expect-error`** sin resolver el problema de tipos subyacente.

@@ -20,6 +20,8 @@ Y fuera de `docs/`:
 
 - [`/AGENTS.md`](../AGENTS.md) — guía para agentes.
 - [`/work/`](../work/) — backlog vivo y tareas en curso/hechas.
+- [`/apps/`](../apps/) — apps desplegables: `web` (SPA) y `functions` (API).
+- [`/packages/`](../packages/) — packages compartidos: `shared` (tipos de dominio).
 
 ## Convenciones de documentación
 

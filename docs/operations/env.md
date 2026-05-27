@@ -65,10 +65,10 @@ Cada entorno necesitaría su propio `.env.staging`, `.env.production`, etc., y u
 
 ## Local development
 
-1. Copia `env.example` a `.env`.
+1. Copia `env.example` a `apps/web/.env` (o a `.env` del root — Vite lee ambos).
 2. Rellena con valores del proyecto Firebase (los de dev o el único que hay).
-3. `pnpm dev` arranca Vite.
-4. Para probar la API local: en otra terminal `cd functions && npm run serve`.
+3. `pnpm dev` arranca Vite (desde la raíz, despachado a `apps/web`).
+4. Para probar la API local: en otra terminal `pnpm --filter @lostrego/functions serve`.
 
 ## Reglas duras
 

@@ -31,4 +31,5 @@ private
 firebase-export-*
 
 # compiled code
-functions/lib
+apps/functions/lib
+packages/shared/dist

@@ -47,28 +47,27 @@ Definición de un tipo de contenido dentro de un site.
 
 #### Field (sub-shape embebido en `models.fields`)
 
-| Campo         | Tipo                                                                                              | Notas                                                                                              |
-| ------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `id`          | string                                                                                            | UUID generado por el cliente, estable. Usado como clave en `ContentItem.data`.                     |
-| `name`        | string                                                                                            | Etiqueta del campo en la UI.                                                                       |
-| `description` | string                                                                                            | Ayuda.                                                                                             |
-| `type`        | `'text' \| 'boolean' \| 'markdown' \| 'media' \| 'datetime' \| 'number' \| 'color' \| 'textList'` | Tipo de campo.                                                                                     |
-| `required`    | boolean                                                                                           |                                                                                                    |
-| `appId`       | string                                                                                            | Slug del campo, usado en la API pública. Único dentro del model.                                   |
-| `useAsTitle`  | boolean                                                                                           | Marca el campo como título visible.                                                                |
-| `showInList`  | boolean                                                                                           | Si aparece en la tabla de listado. **Drift:** falta en `functions/src/services/contentService.ts`. |
-| `order`       | number                                                                                            | Orden de aparición en formulario y lista.                                                          |
+| Campo         | Tipo                                                                                              | Notas                                                                          |
+| ------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `id`          | string                                                                                            | UUID generado por el cliente, estable. Usado como clave en `ContentItem.data`. |
+| `name`        | string                                                                                            | Etiqueta del campo en la UI.                                                   |
+| `description` | string                                                                                            | Ayuda.                                                                         |
+| `type`        | `'text' \| 'boolean' \| 'markdown' \| 'media' \| 'datetime' \| 'number' \| 'color' \| 'textList'` | Tipo de campo.                                                                 |
+| `required`    | boolean                                                                                           |                                                                                |
+| `appId`       | string                                                                                            | Slug del campo, usado en la API pública. Único dentro del model.               |
+| `useAsTitle`  | boolean                                                                                           | Marca el campo como título visible.                                            |
+| `showInList`  | boolean                                                                                           | Si aparece en la tabla de listado.                                             |
+| `order`       | number                                                                                            | Orden de aparición en formulario y lista.                                      |
 
 ### `content/{contentId}`
 
 Una entrada de contenido.
 
-| Campo                    | Tipo                                                                   | Notas                                                                                                |
-| ------------------------ | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `modelId`                | string                                                                 | **String del documentId, no DocumentReference.** [SUPUESTO inconsistencia] — `Model.site` sí es ref. |
-| `site`                   | DocumentReference?                                                     | Existe en el tipo de functions pero no en el del frontend. Drift.                                    |
-| `data`                   | `Record<string, string \| boolean \| string[] \| number \| undefined>` | Claves = `Field.id` (no `appId`). La API transforma a `appId` al servir.                             |
-| `createdAt`, `updatedAt` | Timestamp                                                              |                                                                                                      |
+| Campo                    | Tipo                                                                   | Notas                                                                                                           |
+| ------------------------ | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `modelId`                | string                                                                 | **String del documentId, no DocumentReference.** Inconsistente con `Model.site` (que sí es ref) pero funcional. |
+| `data`                   | `Record<string, string \| boolean \| string[] \| number \| undefined>` | Claves = `Field.id` (no `appId`). La API transforma a `appId` al servir.                                        |
+| `createdAt`, `updatedAt` | Timestamp                                                              |                                                                                                                 |
 
 ## Diagrama de relaciones
 
@@ -86,14 +85,16 @@ siteUser ────────► site (ref via siteUser.site)
                     └─ fields[] (embebido en models)
 ```
 
-## Inconsistencias conocidas (drift)
+## Tipos compartidos
 
-| Drift                                                | Dónde                                                                                                                                                | Acción                                                                        |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `Field.showInList` falta en backend                  | [`functions/src/services/contentService.ts`](../../functions/src/services/contentService.ts)                                                         | Sincronizar tipos — ver backlog P1.                                           |
-| `ContentItem.site` existe en backend, no en frontend | [`functions/src/services/contentService.ts`](../../functions/src/services/contentService.ts) vs [`src/types/content.ts`](../../src/types/content.ts) | Decidir: ¿es necesario? Si sí, añadir al frontend; si no, borrar del backend. |
-| `content.modelId` string, `models.site` ref          | [`src/lib/content.ts`](../../src/lib/content.ts)                                                                                                     | Convención inconsistente. Mantener si funciona, documentar el porqué.         |
-| Tipos `Field`/`Model`/`ContentItem` duplicados       | `src/types/*` y `functions/src/services/contentService.ts`                                                                                           | Compartir tipos → backlog P3 (monorepo / shared package).                     |
+Desde la migración a monorepo (ver [ADR 0006](../adr/0006-monorepo-pnpm-workspaces.md)) los tipos viven en **[`packages/shared/src/`](../../packages/shared/src/)** y se importan como `@lostrego/shared` desde web y functions. Esto eliminó el drift previo (`Field.showInList` faltante en backend, `ContentItem.site` solo en backend, duplicación de interfaces).
+
+## Inconsistencias residuales
+
+| Inconsistencia                                                                                  | Dónde                                                                                                                                | Acción                                                                                                                                  |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `content.modelId` string, `models.site` DocumentReference                                       | [`apps/web/src/lib/content.ts`](../../apps/web/src/lib/content.ts), [`apps/web/src/lib/models.ts`](../../apps/web/src/lib/models.ts) | Convención inconsistente entre colecciones. Funcional; mantener mientras no estorbe.                                                    |
+| `Model.site` declarado `string` en shared pero llega como `DocumentReference` al leer Firestore | [`apps/web/src/lib/models.ts`](../../apps/web/src/lib/models.ts)                                                                     | Mentira histórica del tipo. El frontend lo trata como opaque, no rompe. Refactor si se quiere introducir un tipo `Reference` explícito. |
 
 ## Cosas que NO existen aún en Firestore
 

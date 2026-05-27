@@ -12,6 +12,7 @@ La plantilla está en [`_template.md`](_template.md).
 | [0003](0003-shadcn-radix-tailwind.md)      | shadcn/ui + Radix + Tailwind para la UI          | Aceptado |
 | [0004](0004-react-hook-form-zod.md)        | react-hook-form + zod para formularios dinámicos | Aceptado |
 | [0005](0005-rolldown-vite.md)              | rolldown-vite (override) como bundler            | Aceptado |
+| [0006](0006-monorepo-pnpm-workspaces.md)   | Monorepo con pnpm workspaces                     | Aceptado |
 
 ## Reglas
 

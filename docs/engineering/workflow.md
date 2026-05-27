@@ -65,11 +65,29 @@
 
 Un cambio está hecho cuando:
 
-- [x] Compila (`pnpm build` pasa).
+- [x] Compila (`pnpm build` pasa — esto builda shared, web y functions en orden).
 - [x] Lint y Prettier pasan.
 - [x] Probado manualmente en local (golden path).
 - [x] Si tocó arquitectura, docs actualizados en el mismo PR.
 - [x] PRD/ADR enlazado si aplica.
+- [x] Si tocó `@lostrego/shared`, los dos consumidores (web y functions) siguen compilando.
+
+## Comandos por workspace
+
+```bash
+# Desde la raíz
+pnpm dev                                  # arranca web (apps/web)
+pnpm build                                # builda todos los workspaces en orden
+pnpm build:shared / :web / :functions     # solo uno
+pnpm --filter @lostrego/<name> <cmd>      # cualquier script de un workspace concreto
+
+# Añadir una dep a un workspace
+pnpm --filter @lostrego/web add lucide-react
+pnpm --filter @lostrego/functions add some-lib
+
+# Añadir una dep al root (solo para dev tools globales)
+pnpm add -D -w <package>
+```
 
 ## Cuándo PARAR y consultar al humano
 

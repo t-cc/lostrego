@@ -1,11 +1,18 @@
 # Frontend — estructura
 
-SPA en React 19 + Vite. Punto de entrada: [`src/main.tsx`](../../src/main.tsx) → [`src/App.tsx`](../../src/App.tsx).
+SPA en React 19 + Vite. Vive en `apps/web/` (paquete `@lostrego/web`).
+Punto de entrada: [`apps/web/src/main.tsx`](../../apps/web/src/main.tsx) → [`apps/web/src/App.tsx`](../../apps/web/src/App.tsx).
 
 ## Árbol
 
 ```
-src/
+apps/web/
+├── index.html
+├── vite.config.ts
+├── tsconfig.{json,app,node}.json
+├── components.json
+├── package.json
+└── src/
 ├── App.tsx                 ← Routes + providers
 ├── main.tsx                ← ReactDOM.createRoot
 ├── index.css               ← Tailwind v4 + tokens shadcn
@@ -50,15 +57,23 @@ src/
 │   └── utils.ts            ← cn() de shadcn
 │
 ├── types/
-│   ├── auth.ts
-│   ├── site.ts
-│   ├── model.ts
-│   ├── content.ts
-│   └── layout.ts
+│   └── layout.ts           ← solo tipos UI-specific (MenuItem, BreadcrumbItem…)
+│                              Los tipos de dominio (Field, Model, ContentItem…)
+│                              viven en @lostrego/shared.
 │
 └── config/
     └── menu.ts             ← items del sidebar
 ```
+
+## Tipos de dominio
+
+Los tipos compartidos con el backend (`Field`, `Model`, `ContentItem`, `Site`, `SiteUser`, `User`) viven en [`packages/shared/src/`](../../packages/shared/src/) y se importan así:
+
+```ts
+import type { ContentItem, Field, Model } from '@lostrego/shared';
+```
+
+**No los redeclares en `apps/web/src/types/`.** Si necesitas un tipo nuevo y lo va a usar tanto el frontend como las functions, añádelo a `@lostrego/shared`.
 
 ## Providers (orden importa)
 
@@ -106,13 +121,13 @@ Esto debe migrarse a un wrapper `<ProtectedRoute>` (ver backlog P1).
 
 Servicios exportan un objeto con métodos CRUD. Ejemplo: [`modelService`](../../src/lib/models.ts).
 
-- **Reciben/devuelven tipos de `src/types/`.**
+- **Reciben/devuelven tipos de `@lostrego/shared`** (con excepción de tipos puramente UI).
 - **No conocen el contexto:** no leen `currentSite` por dentro. Quien llama pasa el `siteId`.
 - **Hidratan timestamps:** convierten `Timestamp` de Firestore a `Date` antes de devolver.
 
 ## Patrón de hook (useX)
 
-Wrap del servicio con state local. Ejemplo: [`useModels`](../../src/hooks/useModels.tsx).
+Wrap del servicio con state local. Ejemplo: [`useModels`](../../apps/web/src/hooks/useModels.tsx).
 
 ```tsx
 function useModels() {
@@ -132,7 +147,7 @@ Convención:
 
 ## Formularios dinámicos
 
-El caso interesante: [`Content/common/ContentForm.tsx`](../../src/components/screens/Content/common/ContentForm.tsx).
+El caso interesante: [`Content/common/ContentForm.tsx`](../../apps/web/src/components/screens/Content/common/ContentForm.tsx).
 
 - Recibe un `Model` (con `fields[]`).
 - Construye un **schema zod al vuelo** según los tipos de campo.

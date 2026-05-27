@@ -6,8 +6,8 @@ Cómo se despliega Lostrego.
 
 Todo a Firebase con `firebase deploy`. Tres targets:
 
-- **Hosting:** SPA estática de `dist/`.
-- **Functions:** la API REST (Hono).
+- **Hosting:** SPA estática desde `apps/web/dist/`.
+- **Functions:** la API REST (Hono) compilada en `apps/functions/lib/`.
 - **(Pendiente) Rules:** `firestore.rules` y `storage.rules` aún no existen.
 
 ## Pre-requisitos
@@ -16,13 +16,13 @@ Todo a Firebase con `firebase deploy`. Tres targets:
 - Login: `firebase login`.
 - Proyecto configurado: `.firebaserc` debe apuntar al projectId correcto.
 - Node 24 (ver `.nvmrc`). Usar nvm: `nvm use`.
-- pnpm para el root, **npm para `functions/`** [legacy — ver backlog].
+- **pnpm** para todo el monorepo (root, web y functions).
 
 ## Variables de entorno
 
 ### Frontend (build-time)
 
-Las variables `VITE_FIREBASE_*` se leen de `.env` al hacer `pnpm build`. Ver [`env.md`](env.md).
+Las variables `VITE_FIREBASE_*` se leen de `apps/web/.env` (o `.env` del root como fallback de Vite) al hacer `pnpm build:web`. Ver [`env.md`](env.md).
 
 ### Functions (runtime)
 
@@ -31,17 +31,18 @@ Hoy Functions usa **credenciales por defecto** (no requiere env vars adicionales
 ## Deploy completo
 
 ```bash
-# 1. Build del frontend
-pnpm install
-pnpm build  # tsc -b && vite build → genera dist/
+# Desde la raíz del monorepo
+pnpm install           # instala todo (workspace único)
+pnpm build             # builda shared + web + functions en orden
+pnpm deploy            # firebase deploy
+```
 
-# 2. Build de las functions
-cd functions
-npm install
-npm run build  # tsc → genera lib/
+Equivalente al deploy manual:
 
-# 3. Deploy
-cd ..
+```bash
+pnpm --filter @lostrego/shared build      # primero shared (los demás dependen)
+pnpm --filter @lostrego/web build         # genera apps/web/dist/
+pnpm --filter @lostrego/functions build   # genera apps/functions/lib/
 firebase deploy
 ```
 
@@ -54,11 +55,12 @@ firebase deploy --only functions:api # una función concreta
 firebase deploy --only hosting,functions
 ```
 
+> ⚠️ **Si cambiaste algo en `@lostrego/shared`** y haces deploy parcial, asegúrate de haber buildeado shared primero (`pnpm build:shared`) — si no, web/functions estarán desfasadas.
+
 ## Emulador local
 
 ```bash
-cd functions
-npm run serve  # build + emuladores de functions
+pnpm --filter @lostrego/functions serve  # build + emuladores de functions
 ```
 
 Para emulador completo (Firestore + Auth + Storage + Functions): añadir `firebase emulators:start` con configuración (no presente hoy en `firebase.json` — pendiente).
@@ -68,8 +70,8 @@ Para emulador completo (Firestore + Auth + Storage + Functions): añadir `fireba
 No hay versionado automático. Para revertir:
 
 1. Identifica el commit anterior bueno.
-2. `git revert <hash>` o `git checkout <hash> -- src functions`.
-3. `pnpm build && cd functions && npm run build && cd ..`.
+2. `git revert <hash>` o `git checkout <hash> -- apps packages`.
+3. `pnpm install && pnpm build`.
 4. `firebase deploy`.
 
 ## Tras el deploy
@@ -89,5 +91,4 @@ No hay versionado automático. Para revertir:
 
 - **CI/CD:** GitHub Actions que ejecute deploy en merge a `main` (P3 backlog).
 - **Reglas Firestore/Storage versionadas en el repo.**
-- **Migrar functions a pnpm.**
 - **Considerar `europe-west1`** como región si el público es europeo (ADR pendiente).

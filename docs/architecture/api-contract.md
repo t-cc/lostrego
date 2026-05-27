@@ -1,6 +1,6 @@
 # API REST pública — contrato
 
-Base path: `/api`. Implementación: [`functions/src/routes.ts`](../../functions/src/routes.ts) con Hono.
+Base path: `/api`. Implementación: [`apps/functions/src/routes.ts`](../../apps/functions/src/routes.ts) con Hono.
 
 ## Reglas generales
 
@@ -155,6 +155,6 @@ Devuelve un único `ContentItem`.
 
 1. Abre un PRD describiendo el caso de uso.
 2. Si hay decisión arquitectónica (auth, versionado, etc.) → ADR.
-3. Implementa en [`functions/src/routes.ts`](../../functions/src/routes.ts) y, si toca lógica de datos, en [`functions/src/services/`](../../functions/src/services/).
+3. Implementa en [`apps/functions/src/routes.ts`](../../apps/functions/src/routes.ts) y, si toca lógica de datos, en [`apps/functions/src/services/`](../../apps/functions/src/services/).
 4. **Actualiza este documento.** Si no lo haces, el endpoint no existe oficialmente.
-5. Deploy: `cd functions && pnpm deploy` (cuando migremos a pnpm en functions — ver backlog).
+5. Deploy: `pnpm --filter @lostrego/functions deploy` o `pnpm deploy` desde la raíz.

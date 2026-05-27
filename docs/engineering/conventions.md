@@ -134,9 +134,14 @@ Orden (Prettier plugin lo ordena):
 
 ## Dependencias
 
-- `pnpm` siempre. Nada de `npm`/`yarn`. (Excepción legacy: `functions/package.json` — backlog para alinear.)
+- **pnpm workspaces** en todo el monorepo. Nada de `npm`/`yarn`.
+- **Una dependencia va al `package.json` que la usa**, no al raíz. El raíz solo lleva dev tools que aplican a todo (eslint, prettier, husky, commitlint, lint-staged, typescript-eslint).
+- **Workspace deps** (entre packages internos) se declaran con `workspace:*`:
+  ```json
+  "@lostrego/shared": "workspace:*"
+  ```
 - **Antes de añadir una dependencia gorda:** ADR.
-- Mantén `devDependencies` y `dependencies` separadas correctamente — los paquetes de servidor **no** deben estar en `dependencies` del frontend (bug abierto, backlog P0).
+- **Tipos compartidos entre web y functions** → `@lostrego/shared`. Si los duplicas, el siguiente que lea el código te lo va a hacer notar.
 
 ## Reglas de edición
 

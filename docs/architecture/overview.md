@@ -2,6 +2,20 @@
 
 Snapshot del sistema **a día de hoy**. Si cambia el código, este documento se actualiza.
 
+## Layout del repo
+
+Monorepo pnpm workspaces (ver [ADR 0006](../adr/0006-monorepo-pnpm-workspaces.md)):
+
+```
+lostrego/
+├── apps/
+│   ├── web/          @lostrego/web        ← SPA React + Vite
+│   └── functions/    @lostrego/functions  ← API Hono sobre Firebase Functions
+├── packages/
+│   └── shared/       @lostrego/shared     ← tipos de dominio compartidos
+└── (docs/, work/, firebase.json, package.json raíz)
+```
+
 ## Bloques
 
 ```
@@ -58,13 +72,14 @@ Snapshot del sistema **a día de hoy**. Si cambia el código, este documento se 
 | Files           | Firebase Storage                            | —                                                     |
 | API REST        | Hono sobre Firebase Functions v2            | [ADR 0002](../adr/0002-hono-on-firebase-functions.md) |
 | Hosting         | Firebase Hosting + rewrites a Functions     | —                                                     |
-| Package manager | pnpm                                        | (raíz) — `functions/` usa npm (ver backlog)           |
+| Package manager | pnpm workspaces                             | [ADR 0006](../adr/0006-monorepo-pnpm-workspaces.md)   |
 | Lint / format   | ESLint 9 + Prettier (con sort-imports)      | —                                                     |
 | Commits         | Conventional Commits con scope (commitlint) | —                                                     |
+| Tipos dominio   | `@lostrego/shared` (package interno)        | [ADR 0006](../adr/0006-monorepo-pnpm-workspaces.md)   |
 
 ## Flujo de una petición típica (Edu edita un post)
 
-1. Edu abre `https://<dominio>/` → Firebase Hosting sirve `dist/index.html` (SPA).
+1. Edu abre `https://<dominio>/` → Firebase Hosting sirve `apps/web/dist/index.html` (SPA).
 2. React arranca. `AuthProvider` escucha `onAuthStateChanged`. Si no hay sesión, redirige a `/login`.
 3. Edu hace login con Google. `checkUserExistsAndUpdateAvatar` valida que su email exista en `user/` (whitelist).
 4. `SiteProvider` carga `siteUser` filtrado por su `userRef` → resuelve los `site/` accesibles. Selecciona el guardado en `localStorage` o el primero.
