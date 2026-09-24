@@ -1,0 +1,4 @@
+.cline/
+.clinerules/
+.opencode/
+**/pnpm-lock.yaml
